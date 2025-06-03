@@ -118,3 +118,28 @@ resolveImageIndex() {
 
 }
 
+class CoinStatusBar extends DrawableObject {
+    constructor() {
+        super();
+        this.loadImage('img/8_coin/coin_1.png');
+        this.x = 580; 
+        this.y = 2;
+        this.width = 100;
+        this.height = 100;
+        this.coins = 0;
+    }
+
+    setCoinCount(count) {
+        this.coins = count;
+    }
+
+    draw(ctx) {
+        super.draw(ctx);
+        ctx.font = '40px Luckiest Guy, sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.fillText(this.coins, this.x + 80, this.y + 62);
+
+    }
+}
+
+

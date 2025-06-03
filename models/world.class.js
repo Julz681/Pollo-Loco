@@ -9,6 +9,8 @@ class World {
     throwableObject = [];
     endbossBar = new StatusBarEndboss();
     statusBarBottle = new StatusBarBottle();
+    coinBar = new CoinStatusBar();
+
 
 
 
@@ -48,7 +50,7 @@ checkThrowObjects() {
 
 
 checkCollisions() {
-
+    // 1. Gegner trifft Charakter
     this.level.enemies.forEach((enemy) => {
         enemy.world = this;
 
@@ -57,71 +59,85 @@ checkCollisions() {
             this.statusBar.setPercentage(this.character.energy);
         }
 
+        // 2. Flasche trifft Gegner
+        this.throwableObject.forEach((bottle) => {
+            if (bottle.isColliding(enemy) && !enemy.isDead && !bottle.hasHit) {
+                bottle.hasHit = true;
+                bottle.splash();
 
-    this.throwableObject.forEach((bottle) => {
-        if (bottle.isColliding(enemy) && !enemy.isDead && !bottle.hasHit) {
-            bottle.hasHit = true;
-            bottle.splash();
-
-            if (enemy instanceof Endboss) {
-                enemy.hit(); 
-            } else {
-                enemy.die(); 
+                if (enemy instanceof Endboss) {
+                    enemy.hit();
+                } else {
+                    enemy.die();
+                }
             }
+        });
+    });
+
+    // 3. Boden-Bottles einsammeln (nur wenn noch Platz)
+    this.level.bottles.forEach((bottle, index) => {
+        if (
+            this.character.isColliding(bottle) &&
+            this.statusBarBottle.percentage < 100
+        ) {
+            this.level.bottles.splice(index, 1);
+
+            let newPercentage = Math.min(this.statusBarBottle.percentage + 20, 100);
+            this.statusBarBottle.setPercentage(newPercentage);
         }
     });
+
+    // 4. Coins einsammeln & anzeigen
+    this.level.coins.forEach((coin, index) => {
+        if (this.character.isColliding(coin)) {
+            this.level.coins.splice(index, 1);
+            const current = this.coinBar.coins || 0;
+            this.coinBar.setCoinCount(current + 1);
+        }
     });
-
-
-    this.level.bottles.forEach((bottle, index) => {
-    if (
-        this.character.isColliding(bottle) &&
-        this.statusBarBottle.percentage < 100 
-    ) {
-        this.level.bottles.splice(index, 1);
-
-        let newPercentage = Math.min(this.statusBarBottle.percentage + 20, 100);
-        this.statusBarBottle.setPercentage(newPercentage);
-    }
-});
-
 }
 
 
 
 
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.translate(this.camera_x, 0);
-        this.addObjectToMap(this.level.backgroundObjects);
+draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.translate(-this.camera_x, 0);
-        this.addToMap(this.statusBar);
-        this.addToMap(this.statusBarBottle);
-        this.ctx.translate(this.camera_x, 0);
+    // Kamera verschieben
+    this.ctx.translate(this.camera_x, 0);
 
-        this.addToMap(this.character);
-        this.addObjectToMap(this.level.clouds);
-        this.addObjectToMap(this.level.bottles);
-        this.addObjectToMap(this.level.enemies);
-        this.addObjectToMap(this.throwableObject);
-        
+    // Hintergrund zuerst
+    this.addObjectToMap(this.level.backgroundObjects);
+    this.addObjectToMap(this.level.clouds);
+    this.addObjectToMap(this.level.bottles);
+    this.addObjectToMap(this.level.coins);
+    this.addObjectToMap(this.level.enemies);
+    this.addObjectToMap(this.throwableObject);
 
+    // Charakter danach (liegt über allem)
+    this.addToMap(this.character);
 
-        this.ctx.translate(-this.camera_x, 0);
-            if (this.endbossInView()) {
-            this.addToMap(this.endbossBar);
-        }
+    // Kamera zurücksetzen
+    this.ctx.translate(-this.camera_x, 0);
 
-        
+    // HUD (immer ganz oben sichtbar)
+    this.addToMap(this.statusBar);
+    this.addToMap(this.statusBarBottle);
+    this.addToMap(this.coinBar);
 
-        let self = this;
-        requestAnimationFrame(function() {
-            self.draw();
-        });
-
+    // Endboss-Leiste anzeigen, wenn sichtbar
+    if (this.endbossInView()) {
+        this.addToMap(this.endbossBar);
     }
+
+    // Nächster Frame
+    let self = this;
+    requestAnimationFrame(function() {
+        self.draw();
+    });
+}
+
 
     addObjectToMap(objects) {
         objects.forEach(object => {
