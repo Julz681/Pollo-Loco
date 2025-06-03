@@ -1,6 +1,5 @@
 class World {
   character = new Character();
-  level = level1;
   canvas;
   ctx;
   keyboard;
@@ -16,10 +15,11 @@ class World {
   isPaused = false;
   pauseImage = null;
 
-  constructor(canvas, keyboard) {
-    this.ctx = canvas.getContext("2d");
+  constructor(canvas, keyboard, level) {
     this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
+    this.level = level;
     this.draw();
     this.setWorld();
     this.run();
@@ -100,30 +100,32 @@ class World {
       });
     });
 
-    // 3. Boden-Bottles einsammeln (nur wenn noch Platz)
-    this.level.bottles.forEach((bottle, index) => {
+    // 3. Boden-Bottles einsammeln (nur wenn noch Platz) - rückwärts iterieren
+    for (let i = this.level.bottles.length - 1; i >= 0; i--) {
+      let bottle = this.level.bottles[i];
       if (
         this.character.isColliding(bottle) &&
         this.statusBarBottle.percentage < 100
       ) {
-        this.level.bottles.splice(index, 1);
+        this.level.bottles.splice(i, 1);
 
         let newPercentage = Math.min(this.statusBarBottle.percentage + 20, 100);
         this.statusBarBottle.setPercentage(newPercentage);
       }
-    });
+    }
 
-    // 4. Coins einsammeln & anzeigen
-    this.level.coins.forEach((coin, index) => {
+    // 4. Coins einsammeln & anzeigen - rückwärts iterieren
+    for (let i = this.level.coins.length - 1; i >= 0; i--) {
+      let coin = this.level.coins[i];
       if (this.character.isColliding(coin)) {
-        this.level.coins.splice(index, 1);
+        this.level.coins.splice(i, 1);
         const current = this.coinBar.coins || 0;
         this.coinBar.setCoinCount(current + 1);
       }
-    });
+    }
 
     if (this.character.isDead() && !this.showingEndScreen) {
-      this.showingEndScreen = true; 
+      this.showingEndScreen = true;
       setTimeout(() => {
         this.showEndScreen("img/You won, you lost/Game Over.png");
       }, 1500);
@@ -141,7 +143,7 @@ class World {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Spiel pausiert? => Nur Pausebild anzeigen und Frame erneut rendern
+
     if (this.isPaused) {
       this.ctx.drawImage(
         this.pauseImage,

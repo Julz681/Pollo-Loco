@@ -1,10 +1,57 @@
 let canvas;
 let world;
-let keyboard = new Keyboard();
+let keyboard;
+let currentLevel = 1;
+let level1;
+
+
+function showStartscreen() {
+  document.getElementById("canvas").style.display = "none";
+  document.getElementById("startscreen").classList.remove("hidden");
+  document.getElementById("levelmenu").classList.add("hidden");
+}
+
+function showLevelMenu() {
+  document.getElementById("startscreen").classList.add("hidden");
+  document.getElementById("levelmenu").classList.remove("hidden");
+}
+
+function startGame(levelNumber) {
+  currentLevel = levelNumber;
+  document.getElementById("levelmenu").classList.add("hidden");
+  document.getElementById("canvas").style.display = "block";
+
+  keyboard = new Keyboard();
+  canvas = document.getElementById("canvas");
+
+  let level;
+
+  switch (levelNumber) {
+    case 1:
+      level = createLevel1();
+      break;
+    case 2:
+      level = createLevel2();
+      break;
+    case 3:
+      level = createLevel3();
+      break;
+    case 4:
+      level = createLevel4();
+      break;
+    case 5:
+      level = createLevel5();
+      break;
+    default:
+      level = createLevel1();
+  }
+
+  world = new World(canvas, keyboard, level);  
+}
+
 
 function init() {
-  canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard);
+  // Start über showStartscreen()
 }
 
 document.addEventListener("keydown", (e) => {

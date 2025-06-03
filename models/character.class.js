@@ -94,8 +94,8 @@ class Character extends MovableObject {
         }
       }
 
-      this.onLand(); 
-    }, 40);
+      this.onLand();
+    }, 20);
   }
 
   jump() {
