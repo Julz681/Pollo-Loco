@@ -31,19 +31,37 @@ class World {
 
     checkThrowObjects() {
         if (this.keyboard.D) {
-            let bottle = new throwableObject(this.character.x + 100, this.character.y + 100);
+            let offsetX = this.character.otherDirection ? -100 : 100;
+            let bottle = new throwableObject(this.character.x + offsetX, this.character.y + 100);
+            bottle.otherDirection = this.character.otherDirection;
+            bottle.world = this;
             this.throwableObject.push(bottle);
-        }
+            }
     }
 
+
     checkCollisions() {
-        this.level.enemies.forEach( (enemy) => {
-                if (this.character.isColliding(enemy)){
-                    this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
+        this.level.enemies.forEach((enemy) => {
+            enemy.world = this;
+            if (this.character.isColliding(enemy)) {
+                this.character.hit();
+                this.statusBar.setPercentage(this.character.energy);
+            }
+
+            this.throwableObject.forEach((bottle) => {
+                if (bottle.isColliding(enemy) && !enemy.isDead && !bottle.hasHit) {
+                    bottle.hasHit = true;
+                    bottle.splash();
+                    if (enemy instanceof Endboss) {
+                        enemy.hit(); 
+                    } else {
+                        enemy.die(); 
+                    }
                 }
             });
-        }
+        });
+    }
+
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
