@@ -54,16 +54,20 @@ class Endboss extends MovableObject {
         if (this.isDead) return;
 
         this.hits++;
-        if (this.hits >= 3) {
+        const energyLeft = Math.max(0, 100 - this.hits * 20);
+            if (this.world && this.world.endbossBar) {
+            this.world.endbossBar.setPercentage(energyLeft);
+            }
+            if (this.hits >= 5) {
             this.die();
-        } else {
+            } else {
             this.isHurt = true;
-
             setTimeout(() => {
-                this.isHurt = false;
-            }, 1000); // Hurt-Zustand kurz anzeigen
+            this.isHurt = false;
+            }, 1000);
         }
     }
+
 
     die() {
         this.isDead = true;
@@ -74,7 +78,6 @@ class Endboss extends MovableObject {
             this.playAnimation(this.IMAGES_DEAD);
         }, 200);
 
-        // Optional: Entfernen nach Tod
         setTimeout(() => {
             const index = this.world.level.enemies.indexOf(this);
             if (index > -1) {
