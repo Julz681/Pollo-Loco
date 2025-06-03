@@ -4,7 +4,6 @@ let keyboard;
 let currentLevel = 1;
 let level1;
 
-
 function showStartscreen() {
   document.getElementById("canvas").style.display = "none";
   document.getElementById("startscreen").classList.remove("hidden");
@@ -46,77 +45,82 @@ function startGame(levelNumber) {
       level = createLevel1();
   }
 
-  world = new World(canvas, keyboard, level);  
+  world = new World(canvas, keyboard, level);
 }
-
 
 function init() {
   // Start über showStartscreen()
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.keyCode == 39) {
-    keyboard.RIGHT = true;
-  }
+  if (e.keyCode == 39) keyboard.RIGHT = true;
+  if (e.keyCode == 37) keyboard.LEFT = true;
+  if (e.keyCode == 38) keyboard.UP = true;
+  if (e.keyCode == 40) keyboard.DOWN = true;
+  if (e.keyCode == 32) keyboard.SPACE = true;
+  if (e.keyCode == 68) keyboard.D = true;
+  if (e.keyCode == 80) keyboard.P = true;
+  if (e.keyCode == 67) keyboard.C = true;
 
-  if (e.keyCode == 37) {
-    keyboard.LEFT = true;
-  }
+  if (e.keyCode == 16) keyboard.SHIFT = true;
+  if (e.keyCode == 83) keyboard.S = true;
+  if (e.keyCode == 70) keyboard.F = true;
 
-  if (e.keyCode == 38) {
-    keyboard.UP = true;
+  if (keyboard.SHIFT && keyboard.F) {
+    e.preventDefault(); 
+    enterFullscreen();
   }
-
-  if (e.keyCode == 40) {
-    keyboard.DOWN = true;
-  }
-
-  if (e.keyCode == 32) {
-    keyboard.SPACE = true;
-  }
-
-  if (e.keyCode == 68) {
-    keyboard.D = true;
-  }
-
-  if (e.keyCode == 80) {
-    keyboard.P = true;
-  }
-
-  if (e.keyCode == 67) {
-    keyboard.C = true;
+  
+  if (keyboard.SHIFT && keyboard.S) {
+    e.preventDefault();
+    exitFullscreen();
   }
 });
 
 document.addEventListener("keyup", (e) => {
-  if (e.keyCode == 39) {
-    keyboard.RIGHT = false;
-  }
+  if (e.keyCode == 39) keyboard.RIGHT = false;
+  if (e.keyCode == 37) keyboard.LEFT = false;
+  if (e.keyCode == 38) keyboard.UP = false;
+  if (e.keyCode == 40) keyboard.DOWN = false;
+  if (e.keyCode == 32) keyboard.SPACE = false;
+  if (e.keyCode == 68) keyboard.D = false;
+  if (e.keyCode == 80) keyboard.P = false;
+  if (e.keyCode == 67) keyboard.C = false;
 
-  if (e.keyCode == 37) {
-    keyboard.LEFT = false;
-  }
+  if (e.keyCode == 16) keyboard.SHIFT = false;
+  if (e.keyCode == 83) keyboard.S = false;
+  if (e.keyCode == 70) keyboard.F = false;
+});
 
-  if (e.keyCode == 38) {
-    keyboard.UP = false;
+function enterFullscreen() {
+  const canvas = document.getElementById("canvas");
+  if (!document.fullscreenElement) {
+    canvas.requestFullscreen().catch((err) => {
+      console.error(`Fehler beim Vollbild-Start: ${err.message}`);
+    });
   }
+}
 
-  if (e.keyCode == 40) {
-    keyboard.DOWN = false;
+function exitFullscreen() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch((err) => {
+      console.error(`Fehler beim Vollbild-Ende: ${err.message}`);
+    });
   }
+}
 
-  if (e.keyCode == 32) {
-    keyboard.SPACE = false;
-  }
+function resizeCanvas() {
+  const canvas = document.getElementById("canvas");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 
-  if (e.keyCode == 68) {
-    keyboard.D = false;
-  }
-  if (e.keyCode == 80) {
-    keyboard.P = false;
-  }
+document.addEventListener("fullscreenchange", () => {
+  resizeCanvas();
+});
 
-  if (e.keyCode == 67) {
-    keyboard.C = false;
+window.addEventListener("resize", () => {
+  if (document.fullscreenElement) {
+    resizeCanvas();
   }
 });
