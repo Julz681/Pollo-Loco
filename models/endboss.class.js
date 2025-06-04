@@ -36,44 +36,74 @@ class Endboss extends MovableObject {
     "img/4_enemie_boss_chicken/5_dead/G26.png",
   ];
 
+  IMAGES_FLY = [
+    "img/4_enemie_boss_chicken/6_fly/fly1.png",
+    "img/4_enemie_boss_chicken/6_fly/fly2.png",
+  ];
+
   walkingSpeed = 2;
+  isFlying = false;
+  flyDuration = 3000;
+  groundY = 48;
+  flyY = -60;
 
   constructor() {
     super();
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
+    this.loadImages(this.IMAGES_FLY);
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
     this.x = 700;
     this.animate();
   }
-
   animate() {
     this.animationInterval = setInterval(() => {
       if (this.world?.isPaused) return;
+
       if (this.isDead) {
         this.playAnimation(this.IMAGES_DEAD);
         return;
       }
+
       if (this.isHurt) {
         this.playAnimation(this.IMAGES_HURT);
         return;
       }
+
+      if (this.isFlying) {
+        this.playAnimation(this.IMAGES_FLY);
+        this.y = this.flyY + 10 * Math.sin(Date.now() / 500);
+        if (!this.flyTimeout) {
+          this.flyTimeout = setTimeout(() => {
+            this.isFlying = false;
+            this.flyTimeout = null;
+            this.y = this.groundY;
+          }, this.flyDuration);
+        }
+        this.moveRight(this.walkingSpeed);
+        return;
+      }
+
+
+      if (!this.isFlying && Math.random() < 0.005) {
+        this.isFlying = true;
+        return;
+      }
+
       const character = this.world.character;
       const distance = character.x - this.x;
       const attackDistance = 300;
       if (distance < -attackDistance) {
-        this.otherDirection = false; 
+        this.otherDirection = false;
         this.moveLeft(this.walkingSpeed);
         this.playAnimation(this.IMAGES_WALKING);
-      }
-      else if (distance > attackDistance) {
-        this.otherDirection = true; 
+      } else if (distance > attackDistance) {
+        this.otherDirection = true;
         this.moveRight(this.walkingSpeed);
         this.playAnimation(this.IMAGES_WALKING);
-      }
-      else {
+      } else {
         this.playAnimation(this.IMAGES_ATTACK);
       }
     }, 200);
