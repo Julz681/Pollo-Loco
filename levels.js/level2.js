@@ -1,4 +1,4 @@
-function createLevel2() {
+window.createLevel2 = function() {
   // Gegner
   const enemies = [];
   for (let i = 0; i < 8; i++) {
@@ -29,29 +29,29 @@ function createLevel2() {
     bottles.push(new CollectableBottle(x));
   }
 
-  // Coins 
-  const coins = [];
-  const spacingX = 40;       // Abstand zwischen Coins in einer Reihe
-  const coinsPerRow = 5;     // Coins pro Reihe
-  const rowCount = 6;        // Anzahl Reihen
-  const lowY = 160;
-  const highY = 280;
+// Coins
+const coins = [];
+const spacingX = 40;       // Abstand zwischen Coins in einer Reihe
+const coinsPerRow = 5;     // Coins pro Reihe
+const rowCount = 6;        // Anzahl Reihen
+const lowY = 160;
+const highY = 280;
 
-  const levelWidth = 4300;   // Breite des Levels
-  const totalCoinsWidth = coinsPerRow * spacingX; 
-  const rowSpacingX = (levelWidth - totalCoinsWidth) / (rowCount - 1); 
+const level_start_x = 200;
+const level_end_x = 4300;
+const usableWidth = level_end_x - level_start_x - 500; // Bereich für die Reihen
 
-  for (let row = 0; row < rowCount; row++) {
-    const baseX = row * rowSpacingX;
-    const y = (row % 2 === 0) ? lowY : highY;
-    for (let i = 0; i < coinsPerRow; i++) {
-      const x = baseX + i * spacingX;
-      coins.push(new Coin(x, y));
-    }
+const totalCoinsWidth = coinsPerRow * spacingX; 
+const rowSpacingX = (usableWidth - totalCoinsWidth) / (rowCount - 1);
+
+for (let row = 0; row < rowCount; row++) {
+  const baseX = level_start_x + row * rowSpacingX;
+  const y = (row % 2 === 0) ? lowY : highY;
+  for (let i = 0; i < coinsPerRow; i++) {
+    const x = baseX + i * spacingX;
+    coins.push(new Coin(x, y));
   }
-
-  // Levelende 
-  const level_end_x = 4300;
+}
 
   return new Level(enemies, clouds, backgroundObjects, bottles, coins, level_end_x);
 }
