@@ -7,7 +7,7 @@ class CollectableBottle extends MovableObject {
   constructor(x) {
     super();
     const randomImg =
-      this.IMAGES[Math.floor(Math.random() * this.IMAGES.length)];
+    this.IMAGES[Math.floor(Math.random() * this.IMAGES.length)];
     this.loadImage(randomImg);
     this.x = x;
     this.y = 365;

@@ -33,19 +33,17 @@ class World {
 
   run() {
     setInterval(() => {
-      if (this.keyboard.P) {
-        this.isPaused = true;
-      }
-
-      if (this.keyboard.C) {
-        this.isPaused = false;
-      }
-
+      this.handlePauseToggle();
       if (!this.isPaused) {
         this.checkCollisions();
         this.checkThrowObjects();
       }
     }, 200);
+  }
+
+  handlePauseToggle() {
+    if (this.keyboard.P) this.isPaused = true;
+    if (this.keyboard.C) this.isPaused = false;
   }
 
   checkThrowObjects() {
@@ -54,43 +52,55 @@ class World {
       this.statusBarBottle.percentage > 0 &&
       !this.character.isThrowing
     ) {
-      let offsetX = this.character.otherDirection ? -100 : 100;
-      let bottle = new throwableObject(
-        this.character.x + offsetX,
-        this.character.y + 100
-      );
-      bottle.otherDirection = this.character.otherDirection;
-      bottle.world = this;
-      this.throwableObject.push(bottle);
-
-      this.character.isThrowing = true;
-      this.character.loadImage(this.character.IMAGE_THROW[0]);
-
-      setTimeout(() => {
-        this.character.isThrowing = false;
-        this.character.loadImage(this.character.IMAGES_WALKING[0]);
-      }, 300);
-
-      this.statusBarBottle.setPercentage(this.statusBarBottle.percentage - 20);
+      this.throwBottle();
     }
   }
 
+  throwBottle() {
+    let offsetX = this.character.otherDirection ? -100 : 100;
+    let bottle = new throwableObject(
+      this.character.x + offsetX,
+      this.character.y + 100
+    );
+    bottle.otherDirection = this.character.otherDirection;
+    bottle.world = this;
+    this.throwableObject.push(bottle);
+
+    this.character.isThrowing = true;
+    this.character.loadImage(this.character.IMAGE_THROW[0]);
+
+    setTimeout(() => {
+      this.character.isThrowing = false;
+      this.character.loadImage(this.character.IMAGES_WALKING[0]);
+    }, 300);
+
+    this.statusBarBottle.setPercentage(this.statusBarBottle.percentage - 20);
+  }
+
   checkCollisions() {
-    // 1. Gegner trifft Charakter
+    this.checkEnemyCollisions();
+    this.checkBottleCollisions();
+    this.collectBottles();
+    this.collectCoins();
+    this.checkGameOverOrWin();
+  }
+
+  checkEnemyCollisions() {
     this.level.enemies.forEach((enemy) => {
       enemy.world = this;
-
       if (this.character.isColliding(enemy)) {
         this.character.hit();
         this.statusBar.setPercentage(this.character.energy);
       }
+    });
+  }
 
-      // 2. Flasche trifft Gegner
+  checkBottleCollisions() {
+    this.level.enemies.forEach((enemy) => {
       this.throwableObject.forEach((bottle) => {
         if (bottle.isColliding(enemy) && !enemy.isDead && !bottle.hasHit) {
           bottle.hasHit = true;
           bottle.splash();
-
           if (enemy instanceof Endboss) {
             enemy.hit();
           } else {
@@ -99,8 +109,9 @@ class World {
         }
       });
     });
+  }
 
-    // 3. Boden-Bottles einsammeln (nur wenn noch Platz) - rückwärts iterieren
+  collectBottles() {
     for (let i = this.level.bottles.length - 1; i >= 0; i--) {
       let bottle = this.level.bottles[i];
       if (
@@ -108,13 +119,13 @@ class World {
         this.statusBarBottle.percentage < 100
       ) {
         this.level.bottles.splice(i, 1);
-
         let newPercentage = Math.min(this.statusBarBottle.percentage + 20, 100);
         this.statusBarBottle.setPercentage(newPercentage);
       }
     }
+  }
 
-    // 4. Coins einsammeln & anzeigen - rückwärts iterieren
+  collectCoins() {
     for (let i = this.level.coins.length - 1; i >= 0; i--) {
       let coin = this.level.coins[i];
       if (this.character.isColliding(coin)) {
@@ -123,7 +134,9 @@ class World {
         this.coinBar.setCoinCount(current + 1);
       }
     }
+  }
 
+  checkGameOverOrWin() {
     if (this.character.isDead() && !this.showingEndScreen) {
       this.showingEndScreen = true;
       setTimeout(() => {
@@ -141,49 +154,63 @@ class World {
   }
 
   draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-
+    this.clearCanvas();
     if (this.isPaused) {
-      this.ctx.drawImage(
-        this.pauseImage,
-        this.canvas.width / 2 - 200,
-        this.canvas.height / 2 - 150,
-        400,
-        300
-      );
+      this.drawPauseScreen();
       requestAnimationFrame(() => this.draw());
-      return; // Verhindert Zeichnen des Spiels
+      return;
     }
 
-    // Kamera verschieben
     this.ctx.translate(this.camera_x, 0);
+    this.drawBackgroundObjects();
+    this.drawCharacterAndEnemies();
+    this.ctx.translate(-this.camera_x, 0);
+    this.drawHUD();
+    this.drawEndbossBarIfVisible();
+    this.drawEndScreenIfShowing();
+    requestAnimationFrame(() => this.draw());
+  }
 
-    // Hintergrund zuerst
+  clearCanvas() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  drawPauseScreen() {
+    this.ctx.drawImage(
+      this.pauseImage,
+      this.canvas.width / 2 - 200,
+      this.canvas.height / 2 - 150,
+      400,
+      300
+    );
+  }
+
+  drawBackgroundObjects() {
     this.addObjectToMap(this.level.backgroundObjects);
     this.addObjectToMap(this.level.clouds);
     this.addObjectToMap(this.level.bottles);
     this.addObjectToMap(this.level.coins);
     this.addObjectToMap(this.level.enemies);
     this.addObjectToMap(this.throwableObject);
+  }
 
-    // Charakter danach (liegt über allem)
+  drawCharacterAndEnemies() {
     this.addToMap(this.character);
+  }
 
-    // Kamera zurücksetzen
-    this.ctx.translate(-this.camera_x, 0);
-
-    // HUD (immer ganz oben sichtbar)
+  drawHUD() {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.coinBar);
+  }
 
-    // Endboss-Leiste anzeigen, wenn sichtbar
+  drawEndbossBarIfVisible() {
     if (this.endbossInView()) {
       this.addToMap(this.endbossBar);
     }
+  }
 
-    // Endscreen anzeigen (reinfliegend)
+  drawEndScreenIfShowing() {
     if (this.showingEndScreen && this.endScreenImage) {
       this.ctx.drawImage(
         this.endScreenImage,
@@ -193,15 +220,10 @@ class World {
         300
       );
     }
-
-    // Nächster Frame
-    requestAnimationFrame(() => this.draw());
   }
 
   addObjectToMap(objects) {
-    objects.forEach((object) => {
-      this.addToMap(object);
-    });
+    objects.forEach((object) => this.addToMap(object));
   }
 
   addToMap(movableObject) {
@@ -210,7 +232,6 @@ class World {
     }
     movableObject.draw(this.ctx);
     //movableObject.drawFrame(this.ctx);
-
     if (movableObject.otherDirection) {
       this.flipImageBack(movableObject);
     }
@@ -238,12 +259,13 @@ class World {
     this.endScreenImage = new Image();
     this.endScreenImage.src = path;
     this.endScreenX = this.canvas.width;
-    const animateEndScreen = () => {
-      if (this.endScreenX > this.canvas.width / 2 - 200) {
-        this.endScreenX -= 10;
-        requestAnimationFrame(animateEndScreen);
-      }
-    };
-    animateEndScreen();
+    this.animateEndScreen();
+  }
+
+  animateEndScreen() {
+    if (this.endScreenX > this.canvas.width / 2 - 200) {
+      this.endScreenX -= 10;
+      requestAnimationFrame(() => this.animateEndScreen());
+    }
   }
 }

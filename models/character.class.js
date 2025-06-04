@@ -46,70 +46,84 @@ class Character extends MovableObject {
   wasAboveGround = false;
 
   constructor() {
-    super().loadImage("img/2_character_pepe/2_walk/W-21.png");
+    super().loadImage(this.IMAGES_WALKING[0]);
+    this.loadAllImages();
+    this.applyGravity();
+    this.animate();
+  }
+
+  loadAllImages() {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
     this.loadImages(this.IMAGE_THROW);
-    this.applyGravity();
-    this.animate();
   }
 
   animate() {
     setInterval(() => {
       if (this.world.isPaused) return;
-
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        this.moveRight();
-        this.otherDirection = false;
-      }
-
-      if (this.world.keyboard.LEFT && this.x > 0) {
-        this.moveLeft();
-        this.otherDirection = true;
-      }
-
-      if (this.world.keyboard.SPACE && !this.isAboveGround()) {
-        this.jump();
-      }
-
+      this.handleMovement();
       this.world.camera_x = -this.x + 100;
     }, 1000 / 60);
 
     setInterval(() => {
       if (this.world.isPaused) return;
-
-      if (this.isDead()) {
-        this.playAnimation(this.IMAGES_DEAD);
-      } else if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
-      } else if (this.isThrowing) {
-        this.loadImage(this.IMAGE_THROW[0]);
-      } else if (this.isAboveGround()) {
-        this.playAnimation(this.IMAGES_JUMPING);
-      } else {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-          this.playAnimation(this.IMAGES_WALKING);
-        }
-      }
-
+      this.handleAnimations();
       this.onLand();
     }, 20);
   }
 
+  handleMovement() {
+    if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+      this.moveRight();
+      this.otherDirection = false;
+    } else if (this.world.keyboard.LEFT && this.x > 0) {
+      this.moveLeft();
+      this.otherDirection = true;
+    }
+    if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+      this.jump();
+    }
+  }
+
+  handleAnimations() {
+    if (this.isDead()) {
+      this.playAnimation(this.IMAGES_DEAD);
+    } else if (this.isHurt()) {
+      this.playAnimation(this.IMAGES_HURT);
+    } else if (this.isThrowing) {
+      this.loadImage(this.IMAGE_THROW[0]);
+    } else if (this.isAboveGround()) {
+      this.animateJump();
+    } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+      this.playAnimation(this.IMAGES_WALKING);
+    }
+  }
+
+  animateJump() {
+    if (this.speedY > 5) {
+      this.img = this.imageCache[this.IMAGES_JUMPING[2]];
+    } else if (this.speedY > -5) {
+      this.img = this.imageCache[this.IMAGES_JUMPING[4]];
+    } else {
+      this.img = this.imageCache[this.IMAGES_JUMPING[7]];
+    }
+  }
+
   jump() {
-    this.speedY = 30;
+    if (!this.isAboveGround()) {
+      this.speedY = 25;
+    }
   }
 
   onLand() {
     if (!this.wasAboveGround && this.isAboveGround()) {
       this.wasAboveGround = true;
     }
-
     if (this.wasAboveGround && !this.isAboveGround()) {
       this.wasAboveGround = false;
-      this.loadImage("img/2_character_pepe/3_jump/J-39.png");
+      this.loadImage(this.IMAGES_JUMPING[8]);
     }
   }
 }
