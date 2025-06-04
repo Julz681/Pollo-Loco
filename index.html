@@ -18,6 +18,7 @@
     <script src="models/level.class.js"></script>
     <script src="models/throwable.object.class.js"></script>
     <script src="models/bottles.class.js"></script>
+    <script src="models/collectable-heart.class.js"></script>
     <script src="models/endboss.class.js"></script>
     <script src="models/coin.class.js"></script>
     <script src="levels.js/level1.js"></script>
@@ -25,6 +26,9 @@
     <script src="levels.js/level3.js"></script>
     <script src="levels.js/level4.js"></script>
     <script src="levels.js/level5.js"></script>
+    <script src="levels.js/level6.js"></script>
+    <script src="levels.js/level7.js"></script>
+    <script src="levels.js/level8.js"></script>
 
     <script src="js/game.js"></script>
   </head>
@@ -37,31 +41,44 @@
       <button onclick="showLevelMenu()">Start</button>
     </div>
 
-    <div id="levelmenu" class="overlay hidden">
-      <h2>Choose a Level</h2>
-      <div class="level-buttons">
-        <div>
-          <span>Level 1</span>
-          <button onclick="startGame(1)">Start Game</button>
-        </div>
-        <div>
-          <span>Level 2</span>
-          <button onclick="startGame(2)">Start Game</button>
-        </div>
-        <div>
-          <span>Level 3</span>
-          <button onclick="startGame(3)">Start Game</button>
-        </div>
-        <div>
-          <span>Level 4</span>
-          <button onclick="startGame(4)">Start Game</button>
-        </div>
-        <div>
-          <span>Level 5</span>
-          <button onclick="startGame(5)">Start Game</button>
-        </div>
-      </div>
+<div id="levelmenu" class="overlay hidden">
+  <h2>Choose a Level</h2>
+  <div class="level-buttons">
+    <div>
+      <span>Level 1</span>
+      <button onclick="startGame(1)">Start Game</button>
     </div>
+    <div>
+      <span>Level 2</span>
+      <button onclick="startGame(2)">Start Game</button>
+    </div>
+    <div>
+      <span>Level 3</span>
+      <button onclick="startGame(3)">Start Game</button>
+    </div>
+    <div>
+      <span>Level 4</span>
+      <button onclick="startGame(4)">Start Game</button>
+    </div>
+    <div>
+      <span>Level 5</span>
+      <button onclick="startGame(5)">Start Game</button>
+    </div>
+    <div>
+      <span>Level 6</span>
+      <button onclick="startGame(6)">Start Game</button>
+    </div>
+    <div>
+      <span>Level 7</span>
+      <button onclick="startGame(7)">Start Game</button>
+    </div>
+    <div>
+      <span>Level 8</span>
+      <button onclick="startGame(8)">Start Game</button>
+    </div>
+  </div>
+</div>
+
 
     <h1>El Pollo Loco</h1>
 

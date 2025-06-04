@@ -1,4 +1,4 @@
-window.createLevel5 = function () {
+window.createLevel6 = function () {
   const level_start_x = 600;
   const level_end_x = 10000;
   const usableWidth = level_end_x - level_start_x - 500;
@@ -8,6 +8,7 @@ window.createLevel5 = function () {
   const backgroundObjects = createBackgroundObjects(16);
   const bottles = createBottles(18, level_start_x, usableWidth);
   const coins = createDiagonalCoins();
+  const hearts = createHearts();
 
   return new Level(
     enemies,
@@ -15,6 +16,7 @@ window.createLevel5 = function () {
     backgroundObjects,
     bottles,
     coins,
+    hearts,
     level_end_x
   );
 };
@@ -117,4 +119,13 @@ function createDiagonalCoins() {
   }
 
   return coins;
+}
+
+
+function createHearts() {
+  const hearts = [];
+  hearts.push(new CollectableHeart(2000, 200));
+  hearts.push(new CollectableHeart(6000, 150));
+  hearts.push(new CollectableHeart(8000, 220));
+  return hearts;
 }

@@ -27,6 +27,9 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.enemies.forEach((enemy) => {
+      enemy.world = this;
+    });
     this.pauseImage = new Image();
     this.pauseImage.src = "img/You won, you lost/Game_paused.png";
   }
@@ -82,6 +85,7 @@ class World {
     this.checkBottleCollisions();
     this.collectBottles();
     this.collectCoins();
+    this.collectHearts();
     this.checkGameOverOrWin();
   }
 
@@ -132,6 +136,19 @@ class World {
         this.level.coins.splice(i, 1);
         const current = this.coinBar.coins || 0;
         this.coinBar.setCoinCount(current + 1);
+      }
+    }
+  }
+
+  collectHearts() {
+    if (!this.level.hearts) return;
+    for (let i = this.level.hearts.length - 1; i >= 0; i--) {
+      let heart = this.level.hearts[i];
+      if (this.character.isColliding(heart)) {
+        this.level.hearts.splice(i, 1);
+        let newEnergy = Math.min(this.character.energy + 20, 100);
+        this.character.energy = newEnergy;
+        this.statusBar.setPercentage(newEnergy);
       }
     }
   }
@@ -190,6 +207,7 @@ class World {
     this.addObjectToMap(this.level.clouds);
     this.addObjectToMap(this.level.bottles);
     this.addObjectToMap(this.level.coins);
+    this.addObjectToMap(this.level.hearts);
     this.addObjectToMap(this.level.enemies);
     this.addObjectToMap(this.throwableObject);
   }

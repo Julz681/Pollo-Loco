@@ -33,7 +33,7 @@ window.createLevel2 = function() {
 const coins = [];
 const spacingX = 40;       // Abstand zwischen Coins in einer Reihe
 const coinsPerRow = 5;     // Coins pro Reihe
-const rowCount = 6;        // Anzahl Reihen
+const rowCount = 7;        // Anzahl Reihen
 const lowY = 160;
 const highY = 280;
 

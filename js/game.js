@@ -41,6 +41,15 @@ function startGame(levelNumber) {
     case 5:
       level = createLevel5();
       break;
+    case 6:
+      level = createLevel6();
+      break;
+    case 7:
+      level = createLevel7();
+      break;
+    case 8:
+      level = createLevel8();
+      break;
     default:
       level = createLevel1();
   }

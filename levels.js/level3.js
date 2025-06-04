@@ -1,9 +1,9 @@
-window.createLevel3 = function() {
+window.createLevel3 = function () {
   // Gegner
   const enemies = [];
 
   // Parameter zur Verteilung
-  const level_start_x = 600;  // Startposition geändert von 200 auf 600
+  const level_start_x = 600; 
   const level_end_x = 5200;
   const usableWidth = level_end_x - level_start_x - 500;
 
@@ -67,7 +67,7 @@ window.createLevel3 = function() {
   const coins = [];
   const spacingX = 40;
   const coinsPerRow = 5;
-  const rowCount = 6;
+  const rowCount = 8;
   const lowY = 160;
   const highY = 280;
 
@@ -76,12 +76,19 @@ window.createLevel3 = function() {
 
   for (let row = 0; row < rowCount; row++) {
     const baseX = level_start_x + row * rowSpacingX;
-    const y = (row % 2 === 0) ? lowY : highY;
+    const y = row % 2 === 0 ? lowY : highY;
     for (let i = 0; i < coinsPerRow; i++) {
       const x = baseX + i * spacingX;
       coins.push(new Coin(x, y));
     }
   }
 
-  return new Level(enemies, clouds, backgroundObjects, bottles, coins, level_end_x);
-}
+  return new Level(
+    enemies,
+    clouds,
+    backgroundObjects,
+    bottles,
+    coins,
+    level_end_x
+  );
+};
