@@ -1,5 +1,8 @@
-window.createLevel2 = function() {
-  // Gegner
+window.createLevel2 = function () {
+  const level_start_x = 200;
+  const level_end_x = 4500;
+  const usableWidth = level_end_x - level_start_x - 500;
+
   const enemies = [];
   for (let i = 0; i < 8; i++) {
     const chicken = new Chicken();
@@ -10,48 +13,38 @@ window.createLevel2 = function() {
   boss.x = 4300;
   enemies.push(boss);
 
-  // Clouds
-  const clouds = [];
-  for (let i = 0; i < 15; i++) {
-    const cloud = new Cloud();
-    cloud.x = i * 400 + Math.random() * 100;
-    clouds.push(cloud);
-  }
-
-  // Background
-  const segmentCount = 9;
-  const backgroundObjects = createBackgroundObjects(segmentCount);
-
-  // Bottles
+  const clouds = createClouds(15);
+  const backgroundObjects = createBackgroundObjects(9);
   const bottles = [];
   for (let i = 0; i < 8; i++) {
-    const x = 400 + i * 300;
-    bottles.push(new CollectableBottle(x));
+    bottles.push(new CollectableBottle(400 + i * 300));
   }
 
-// Coins
-const coins = [];
-const spacingX = 40;       // Abstand zwischen Coins in einer Reihe
-const coinsPerRow = 5;     // Coins pro Reihe
-const rowCount = 7;        // Anzahl Reihen
-const lowY = 160;
-const highY = 280;
+  const coins = [];
+  const spacingX = 40;
+  const coinsPerRow = 5;
+  const rowCount = 7;
+  const lowY = 160;
+  const highY = 280;
 
-const level_start_x = 200;
-const level_end_x = 4300;
-const usableWidth = level_end_x - level_start_x - 500; // Bereich für die Reihen
+  const totalCoinsWidth = coinsPerRow * spacingX;
+  const rowSpacingX = (usableWidth - totalCoinsWidth) / (rowCount - 1);
 
-const totalCoinsWidth = coinsPerRow * spacingX; 
-const rowSpacingX = (usableWidth - totalCoinsWidth) / (rowCount - 1);
-
-for (let row = 0; row < rowCount; row++) {
-  const baseX = level_start_x + row * rowSpacingX;
-  const y = (row % 2 === 0) ? lowY : highY;
-  for (let i = 0; i < coinsPerRow; i++) {
-    const x = baseX + i * spacingX;
-    coins.push(new Coin(x, y));
+  for (let row = 0; row < rowCount; row++) {
+    const baseX = level_start_x + row * rowSpacingX;
+    const y = row % 2 === 0 ? lowY : highY;
+    for (let i = 0; i < coinsPerRow; i++) {
+      coins.push(new Coin(baseX + i * spacingX, y));
+    }
   }
-}
 
-  return new Level(enemies, clouds, backgroundObjects, bottles, coins, level_end_x);
-}
+  return new Level(
+    enemies,
+    clouds,
+    backgroundObjects,
+    bottles,
+    coins,
+    [],
+    level_end_x
+  );
+};

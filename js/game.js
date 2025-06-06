@@ -76,10 +76,10 @@ document.addEventListener("keydown", (e) => {
   if (e.keyCode == 70) keyboard.F = true;
 
   if (keyboard.SHIFT && keyboard.F) {
-    e.preventDefault(); 
+    e.preventDefault();
     enterFullscreen();
   }
-  
+
   if (keyboard.SHIFT && keyboard.S) {
     e.preventDefault();
     exitFullscreen();

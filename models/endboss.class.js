@@ -41,7 +41,7 @@ class Endboss extends MovableObject {
     "img/4_enemie_boss_chicken/6_fly/fly2.png",
   ];
 
-  walkingSpeed = 2;
+  walkingSpeed = 4;
   isFlying = false;
   flyDuration = 3000;
   groundY = 48;
@@ -85,7 +85,6 @@ class Endboss extends MovableObject {
         this.moveRight(this.walkingSpeed);
         return;
       }
-
 
       if (!this.isFlying && Math.random() < 0.005) {
         this.isFlying = true;
