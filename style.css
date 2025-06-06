@@ -65,3 +65,95 @@ span {
     font-size: x-large;
     margin-top: 10px;
 }
+
+.endScreenButtons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  }
+
+.endScreenButtons button {
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: #ffc107;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  color: black;
+}
+
+.gameOverButtons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  gap: 50px;
+}
+
+.gameOverButtons button {
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: #bd4e47;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  color: white;
+}
+
+#finalLevelOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 720px;
+  height: 480px;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0,0,0,0.85);
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#finalLevelOverlay.hidden {
+  display: none;
+}
+
+#finalLevelOverlay h2 {
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+#summary p {
+  margin: 5px 0;
+  font-size: 1.2rem;
+}
+
+.finalButtons {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+.finalButtons button {
+  background-color: #4CAF50;
+  border: none;
+  padding: 10px 25px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.finalButtons button:hover {
+  background-color: #45a049;
+}
+
+

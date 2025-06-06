@@ -1,3 +1,7 @@
+window.addEventListener("load", () => {
+  initFinalOverlay();
+});
+
 let canvas;
 let world;
 let keyboard;
@@ -55,6 +59,12 @@ function startGame(levelNumber) {
   }
 
   world = new World(canvas, keyboard, level);
+
+  if (levelNumber === 8) {
+    world.startTime = Date.now();
+    world.deaths = 0;
+    world.coinsCollectedFinal = 0;
+  }
 }
 
 function init() {
@@ -133,3 +143,151 @@ window.addEventListener("resize", () => {
     resizeCanvas();
   }
 });
+
+function showEndScreenWithButtons(imagePath) {
+  const overlay = document.getElementById("endScreenOverlay");
+  const img = document.getElementById("endScreenImage");
+  const playAgainBtn = document.getElementById("playAgainBtn");
+  const nextLevelBtn = document.getElementById("nextLevelBtn");
+
+  img.src = imagePath;
+  overlay.classList.remove("hidden");
+
+  playAgainBtn.onclick = () => {
+    overlay.classList.add("hidden");
+    startGame(currentLevel); // Aktuelles Level neu starten
+  };
+
+  nextLevelBtn.onclick = () => {
+    overlay.classList.add("hidden");
+    if (currentLevel < 8) {
+      startGame(currentLevel + 1); // Nächstes Level starten
+    } else {
+      alert("Du hast alle Level geschafft!");
+      // Alternativ: Zur Startseite oder Level-Auswahl
+      showLevelMenu();
+    }
+  };
+}
+
+function showGameOverScreen() {
+  const overlay = document.getElementById("gameOverOverlay");
+  const tryAgainBtn = document.getElementById("tryAgainBtn");
+  const backToMenuBtn = document.getElementById("backToMenuBtn");
+
+  overlay.classList.remove("hidden");
+
+  tryAgainBtn.onclick = () => {
+    overlay.classList.add("hidden");
+    startGame(currentLevel); // aktuelles Level neu starten
+  };
+
+  backToMenuBtn.onclick = () => {
+    overlay.classList.add("hidden");
+    showLevelMenu(); // zurück ins Level Menü
+  };
+}
+
+// --- Variablen für Tracking ---
+let finalOverlay;
+let confettiCanvas, confettiCtx;
+let confettiPieces = [];
+let confettiAnimationId;
+let startTime;
+let deaths = 0; // Hier musst du die Tode tracken (siehe unten)
+let coinsCollectedFinal = 0;
+
+function initFinalOverlay() {
+  finalOverlay = document.getElementById("finalLevelOverlay");
+  confettiCanvas = document.getElementById("confettiCanvas");
+  confettiCtx = confettiCanvas.getContext("2d");
+  confettiCanvas.width = 720;
+  confettiCanvas.height = 480;
+
+  document.getElementById("playAgainBtnFinal").onclick = () => {
+    stopConfetti();
+    finalOverlay.classList.add("hidden");
+    startGame(1);
+  };
+
+  document.getElementById("showStatsBtn").onclick = () => {
+    alert(
+      `Du hast ${coinsCollectedFinal} Münzen gesammelt, bist ${deaths} mal gestorben und hast ${formatTime(
+        Date.now() - startTime
+      )} gebraucht.`
+    );
+  };
+}
+
+// Start Konfetti
+function startConfetti() {
+  confettiPieces = [];
+  const colors = ["#ff0a54", "#ff477e", "#ff85a1", "#fbb1b1", "#f9bec7"];
+
+  for (let i = 0; i < 100; i++) {
+    confettiPieces.push({
+      x: Math.random() * confettiCanvas.width,
+      y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * 20 + 10,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      tilt: Math.floor(Math.random() * 10) - 10,
+      tiltAngle: 0,
+      tiltAngleIncrement: Math.random() * 0.07 + 0.05,
+      speedY: Math.random() + 1,
+      speedX: (Math.random() - 0.5) * 2,
+    });
+  }
+
+  confettiAnimationId = requestAnimationFrame(drawConfetti);
+}
+
+function drawConfetti() {
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+  confettiPieces.forEach((p) => {
+    p.tiltAngle += p.tiltAngleIncrement;
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.tilt = Math.sin(p.tiltAngle) * 15;
+
+    confettiCtx.beginPath();
+    confettiCtx.lineWidth = p.r / 2;
+    confettiCtx.strokeStyle = p.color;
+    confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+    confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+    confettiCtx.stroke();
+
+    if (p.y > confettiCanvas.height) {
+      p.x = Math.random() * confettiCanvas.width;
+      p.y = -20;
+    }
+  });
+
+  confettiAnimationId = requestAnimationFrame(drawConfetti);
+}
+
+function stopConfetti() {
+  cancelAnimationFrame(confettiAnimationId);
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+}
+
+// Hilfsfunktion Zeit formatieren (mm:ss)
+function formatTime(ms) {
+  let totalSeconds = Math.floor(ms / 1000);
+  let minutes = Math.floor(totalSeconds / 60);
+  let seconds = totalSeconds % 60;
+  return `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
+}
+
+// --- Funktion zum Anzeigen des finalen Overlays ---
+function showFinalLevelOverlay(coins, timeMs, deathCount) {
+  finalOverlay.classList.remove("hidden");
+  document.getElementById("coinsCollectedFinal").textContent = coins;
+  document.getElementById("timeTaken").textContent = formatTime(timeMs);
+  document.getElementById("deathsCount").textContent = deathCount;
+
+  startConfetti();
+}

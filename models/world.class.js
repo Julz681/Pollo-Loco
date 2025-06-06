@@ -15,6 +15,10 @@ class World {
   isPaused = false;
   pauseImage = null;
 
+  deaths = 0;
+  coinsCollectedFinal = 0;
+  startTime = 0;
+
   constructor(canvas, keyboard, level) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
@@ -94,6 +98,9 @@ class World {
       enemy.world = this;
       if (this.character.isColliding(enemy)) {
         this.character.hit();
+
+        this.deaths++;
+
         this.statusBar.setPercentage(this.character.energy);
       }
     });
@@ -136,6 +143,8 @@ class World {
         this.level.coins.splice(i, 1);
         const current = this.coinBar.coins || 0;
         this.coinBar.setCoinCount(current + 1);
+
+        this.coinsCollectedFinal = current + 1;
       }
     }
   }
@@ -157,7 +166,7 @@ class World {
     if (this.character.isDead() && !this.showingEndScreen) {
       this.showingEndScreen = true;
       setTimeout(() => {
-        this.showEndScreen("img/You won, you lost/Game Over.png");
+        showGameOverScreen();
       }, 1500);
     }
 
@@ -165,7 +174,16 @@ class World {
     if (endboss && endboss.isDead && !this.showingEndScreen) {
       this.showingEndScreen = true;
       setTimeout(() => {
-        this.showEndScreen("img/You won, you lost/You won A.png");
+        if (currentLevel === 8) {
+          const timeSpent = Date.now() - this.startTime;
+          showFinalLevelOverlay(
+            this.coinsCollectedFinal,
+            timeSpent,
+            this.deaths
+          );
+        } else {
+          showEndScreenWithButtons("img/You won, you lost/You won A.png");
+        }
       }, 1500);
     }
   }
