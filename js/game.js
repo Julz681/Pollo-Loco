@@ -1,12 +1,19 @@
-window.addEventListener("load", () => {
-  initFinalOverlay();
-});
-
 let canvas;
 let world;
 let keyboard;
 let currentLevel = 1;
-let level1;
+let isMuted = false;
+
+const maxCoinsPerLevel = {
+  1: 30,
+  2: 35,
+  3: 40,
+  4: 45,
+  5: 50,
+  6: 50,
+  7: 50,
+  8: 60,
+};
 
 function showStartscreen() {
   document.getElementById("canvas").style.display = "none";
@@ -14,10 +21,95 @@ function showStartscreen() {
   document.getElementById("levelmenu").classList.add("hidden");
 }
 
+function getMaxCoinsForLevel(levelNumber) {
+  return maxCoinsPerLevel[levelNumber] || 0;
+}
+
+function updateCoinsInLevelMenu() {
+  for (let level = 1; level <= 8; level++) {
+    const maxCoins = getMaxCoinsForLevel(level);
+    const collectedCoins = localStorage.getItem(`coinsLevel${level}`) || 0;
+    const display = document.getElementById(`coinsLevel${level}Display`);
+    if (display) {
+      display.innerHTML = `${collectedCoins} / ${maxCoins} <img src="img/8_coin/coin_1.png" alt="Coin" style="width:70px; vertical-align:middle;margin-left:-20px;">`;
+    }
+  }
+}
+
 function showLevelMenu() {
   document.getElementById("startscreen").classList.add("hidden");
   document.getElementById("levelmenu").classList.remove("hidden");
+  updateCoinsInLevelMenu();
 }
+
+window.addEventListener("load", () => {
+  initFinalOverlay();
+  showStartscreen();
+
+  // Game Over Overlay Buttons
+  const tryAgainBtn = document.getElementById("tryAgainBtn");
+  if (tryAgainBtn) {
+    tryAgainBtn.onclick = () => {
+      document.getElementById("gameOverOverlay").classList.add("hidden");
+      startGame(currentLevel);
+    };
+  }
+  const backToMenuBtnGameOver = document.getElementById("backToMenuBtnGameOver");
+  if (backToMenuBtnGameOver) {
+    backToMenuBtnGameOver.onclick = () => {
+      document.getElementById("gameOverOverlay").classList.add("hidden");
+      showLevelMenu();
+    };
+  }
+
+  // End Screen Overlay Buttons
+  const playAgainBtn = document.getElementById("playAgainBtn");
+  if (playAgainBtn) {
+    playAgainBtn.onclick = () => {
+      document.getElementById("endScreenOverlay").classList.add("hidden");
+      startGame(currentLevel);
+    };
+  }
+  const nextLevelBtn = document.getElementById("nextLevelBtn");
+  if (nextLevelBtn) {
+    nextLevelBtn.onclick = () => {
+      document.getElementById("endScreenOverlay").classList.add("hidden");
+      if (currentLevel < 8) {
+        startGame(currentLevel + 1);
+      } else {
+        // Wenn letzte Level erreicht ist, zurück zum Menü ohne Alert
+        showLevelMenu();
+      }
+    };
+  }
+  const backToMenuBtnEndScreen = document.getElementById("backToMenuBtnEndScreen");
+  if (backToMenuBtnEndScreen) {
+    backToMenuBtnEndScreen.onclick = () => {
+      document.getElementById("endScreenOverlay").classList.add("hidden");
+      showLevelMenu();
+    };
+  }
+
+  // Final Level Overlay Buttons
+  const playAgainBtnFinal = document.getElementById("playAgainBtnFinal");
+  if (playAgainBtnFinal) {
+    playAgainBtnFinal.onclick = () => {
+      stopConfetti();
+      document.getElementById("finalLevelOverlay").classList.add("hidden");
+      document.getElementById("canvas").style.display = "block";
+      startGame(1);
+    };
+  }
+  const backToMenuBtnFinal = document.getElementById("backToMenuBtnFinal");
+  if (backToMenuBtnFinal) {
+    backToMenuBtnFinal.onclick = () => {
+      stopConfetti();
+      document.getElementById("finalLevelOverlay").classList.add("hidden");
+      document.getElementById("canvas").style.display = "none";
+      showLevelMenu();
+    };
+  }
+});
 
 function startGame(levelNumber) {
   currentLevel = levelNumber;
@@ -67,11 +159,23 @@ function startGame(levelNumber) {
   }
 }
 
-function init() {
-  // Start über showStartscreen()
-}
-
 document.addEventListener("keydown", (e) => {
+  if (world?.isGameOver) return;
+
+  // Mute mit Shift + M
+  if (e.shiftKey && (e.key === "m" || e.key === "M")) {
+    isMuted = true;
+    if (world) world.muteAllSounds();
+    return; // keine weiteren Aktionen bei diesem Tastendruck
+  }
+
+  // Unmute mit Shift + U
+  if (e.shiftKey && (e.key === "u" || e.key === "U")) {
+    isMuted = false;
+    if (world) world.unmuteAllSounds();
+    return;
+  }
+
   if (e.keyCode == 39) keyboard.RIGHT = true;
   if (e.keyCode == 37) keyboard.LEFT = true;
   if (e.keyCode == 38) keyboard.UP = true;
@@ -96,6 +200,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
 document.addEventListener("keyup", (e) => {
   if (e.keyCode == 39) keyboard.RIGHT = false;
   if (e.keyCode == 37) keyboard.LEFT = false;
@@ -114,17 +219,13 @@ document.addEventListener("keyup", (e) => {
 function enterFullscreen() {
   const canvas = document.getElementById("canvas");
   if (!document.fullscreenElement) {
-    canvas.requestFullscreen().catch((err) => {
-      console.error(`Fehler beim Vollbild-Start: ${err.message}`);
-    });
+    canvas.requestFullscreen().catch(() => {});
   }
 }
 
 function exitFullscreen() {
   if (document.fullscreenElement) {
-    document.exitFullscreen().catch((err) => {
-      console.error(`Fehler beim Vollbild-Ende: ${err.message}`);
-    });
+    document.exitFullscreen().catch(() => {});
   }
 }
 
@@ -149,49 +250,17 @@ function showEndScreenWithButtons(imagePath) {
   const img = document.getElementById("endScreenImage");
   const playAgainBtn = document.getElementById("playAgainBtn");
   const nextLevelBtn = document.getElementById("nextLevelBtn");
-  const backToMenuBtn = document.getElementById("backToMenuBtn");
+  const backToMenuBtn = document.getElementById("backToMenuBtnEndScreen");
 
   img.src = imagePath;
   overlay.classList.remove("hidden");
 
-  playAgainBtn.onclick = () => {
-    overlay.classList.add("hidden");
-    startGame(currentLevel);
-  };
-
-  nextLevelBtn.onclick = () => {
-    overlay.classList.add("hidden");
-    if (currentLevel < 8) {
-      startGame(currentLevel + 1);
-    } else {
-      alert("Du hast alle Level geschafft!");
-      showLevelMenu();
-    }
-  };
-
-  backToMenuBtn.onclick = () => {
-    overlay.classList.add("hidden");
-    showLevelMenu();
-  };
 }
 
 function showGameOverScreen() {
-  const overlay = document.getElementById("gameOverOverlay");
-  const tryAgainBtn = document.getElementById("tryAgainBtn");
-  const backToMenuBtn = document.getElementById("backToMenuBtn");
-
-  overlay.classList.remove("hidden");
-
-  tryAgainBtn.onclick = () => {
-    overlay.classList.add("hidden");
-    startGame(currentLevel);
-  };
-
-  backToMenuBtn.onclick = () => {
-    overlay.classList.add("hidden");
-    showLevelMenu();
-  };
+  document.getElementById("gameOverOverlay").classList.remove("hidden");
 }
+
 
 let startTime;
 let deaths = 0;
@@ -203,20 +272,6 @@ function initFinalOverlay() {
   confettiCtx = confettiCanvas.getContext("2d");
   confettiCanvas.width = 720;
   confettiCanvas.height = 480;
-
-  document.getElementById("playAgainBtnFinal").onclick = () => {
-    stopConfetti();
-    finalOverlay.classList.add("hidden");
-    document.getElementById("canvas").style.display = "block";
-    startGame(1);
-  };
-
-  document.getElementById("backToMenuBtnFinal").onclick = () => {
-    stopConfetti();
-    finalOverlay.classList.add("hidden");
-    document.getElementById("canvas").style.display = "none";
-    showLevelMenu();
-  };
 }
 
 function startConfetti() {
@@ -275,9 +330,7 @@ function formatTime(ms) {
   let totalSeconds = Math.floor(ms / 1000);
   let minutes = Math.floor(totalSeconds / 60);
   let seconds = totalSeconds % 60;
-  return `${minutes.toString().padStart(2, "0")}:${seconds
-    .toString()
-    .padStart(2, "0")}`;
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function showFinalLevelOverlay() {

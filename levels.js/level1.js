@@ -3,7 +3,7 @@ window.createLevel1 = function () {
   const level_end_x = 3600;
   const usableWidth = level_end_x - level_start_x;
 
-  // Gegner: 8 Chickens, Boss bei 3500
+
   const enemies = [];
   for (let i = 0; i < 8; i++) {
     const chicken = new Chicken();
@@ -16,9 +16,9 @@ window.createLevel1 = function () {
 
   const clouds = createClouds(10);
   const backgroundObjects = createBackgroundObjects(7);
-  const bottles = createBottles(10, 400, 300 * 9); // Positions ca. 400,700,...
+  const bottles = createBottles(10, 400, 300 * 9);
   const coins = [];
-  // Münzenbogen (wie im Original)
+
   const bogenAbstand = 600;
   const bogenHoehe = 130;
   for (let b = 0; b < 5; b++) {

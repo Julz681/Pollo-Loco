@@ -45,6 +45,8 @@ class Character extends MovableObject {
   world;
   wasAboveGround = false;
 
+  jump_sound = new Audio('audio/jump.mp3');
+
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
     this.loadAllImages();
@@ -114,6 +116,8 @@ class Character extends MovableObject {
   jump() {
     if (!this.isAboveGround()) {
       this.speedY = 25;
+      this.jump_sound.play();
+      this.jump_sound.volume = 0.5;
     }
   }
 

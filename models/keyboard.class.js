@@ -10,4 +10,6 @@ class Keyboard {
   SHIFT = false;
   S = false;
   F = false;
+  M = false;
+  U = false;
 }
