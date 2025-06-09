@@ -175,12 +175,9 @@ class World {
       this.showingEndScreen = true;
       setTimeout(() => {
         if (currentLevel === 8) {
-          const timeSpent = Date.now() - this.startTime;
-          showFinalLevelOverlay(
-            this.coinsCollectedFinal,
-            timeSpent,
-            this.deaths
-          );
+          setTimeout(() => {
+            showFinalLevelOverlay();
+          }, 1500);
         } else {
           showEndScreenWithButtons("img/You won, you lost/You won A.png");
         }

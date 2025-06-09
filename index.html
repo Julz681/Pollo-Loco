@@ -84,15 +84,13 @@
     <canvas id="canvas" width="720" height="480"> </canvas>
     <div id="finalLevelOverlay" class="overlay hidden">
       <canvas id="confettiCanvas"></canvas>
-      <h2>Congratulations! You finished the game!</h2>
-      <div id="summary">
-        <p>Münzen gesammelt: <span id="coinsCollectedFinal">0</span></p>
-        <p>Benötigte Zeit: <span id="timeTaken">00:00</span></p>
-        <p>Tode: <span id="deathsCount">0</span></p>
-      </div>
+      <h2 id="finalMessage">
+        Congratulations! <br />
+        You finished the game!
+      </h2>
       <div class="finalButtons">
         <button id="playAgainBtnFinal">Play Again from Level 1</button>
-        <button id="showStatsBtn">Show Stats</button>
+        <button id="backToMenuBtnFinal">Back to Level Menu</button>
       </div>
     </div>
 
@@ -101,8 +99,10 @@
       <div class="endScreenButtons">
         <button id="playAgainBtn">Play Again</button>
         <button id="nextLevelBtn">Next Level</button>
+        <button id="backToMenuBtn">Back to Level Menu</button>
       </div>
     </div>
+
     <div id="gameOverOverlay" class="overlay hidden">
       <img
         id="gameOverImage"
