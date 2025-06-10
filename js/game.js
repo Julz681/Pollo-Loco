@@ -1,8 +1,8 @@
 let canvas;
 let world;
-let keyboard;
 let currentLevel = 1;
 let isMuted = false;
+let keyboard = new Keyboard();
 
 const maxCoinsPerLevel = {
   1: 30,
