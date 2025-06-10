@@ -338,3 +338,5 @@ function showFinalLevelOverlay() {
   document.getElementById("canvas").style.display = "none";
   startConfetti();
 }
+
+
