@@ -1,9 +1,17 @@
+/** @type {HTMLElement} Overlay for the final level */
 let finalOverlay;
+/** @type {HTMLCanvasElement} Canvas for confetti animation */
 let confettiCanvas;
+/** @type {CanvasRenderingContext2D} Context for confetti canvas */
 let confettiCtx;
+/** @type {number} ID for confetti animation frame */
 let confettiAnimationId;
+/** @type {HTMLCanvasElement} Main game canvas */
 let gameCanvas;
 
+/**
+ * Initializes UI elements and sets up event listeners on window load.
+ */
 window.addEventListener("load", () => {
   initOverlays();
   setupOverlayButtons();
@@ -11,6 +19,24 @@ window.addEventListener("load", () => {
   showStartscreen();
 });
 
+/**
+ * Mapping from level number to maximum coins in that level.
+ * @type {Object<number, number>}
+ */
+const maxCoinsPerLevel = {
+  1: 30,
+  2: 35,
+  3: 40,
+  4: 45,
+  5: 50,
+  6: 50,
+  7: 50,
+  8: 60,
+};
+
+/**
+ * Initializes overlay elements and canvas contexts.
+ */
 function initOverlays() {
   finalOverlay = document.getElementById("finalLevelOverlay");
   confettiCanvas = document.getElementById("confettiCanvas");
@@ -20,12 +46,19 @@ function initOverlays() {
   gameCanvas = document.getElementById("canvas");
 }
 
+/**
+ * Shows the start screen and hides the game canvas and level menu.
+ */
 function showStartscreen() {
   document.getElementById("canvas").style.display = "none";
   document.getElementById("startscreen").classList.remove("hidden");
   document.getElementById("levelmenu").classList.add("hidden");
 }
 
+/**
+ * Updates the displayed coin count for a specific level.
+ * @param {number} level - The level number.
+ */
 function updateCoinsDisplay(level) {
   const maxCoins = getMaxCoinsForLevel(level);
   const collectedCoins = localStorage.getItem(`coinsLevel${level}`) || 0;
@@ -35,24 +68,36 @@ function updateCoinsDisplay(level) {
   }
 }
 
+/**
+ * Updates coin counts for all levels in the level menu.
+ */
 function updateCoinsInLevelMenu() {
   for (let level = 1; level <= 8; level++) {
     updateCoinsDisplay(level);
   }
 }
 
+/**
+ * Shows the level selection menu and hides the start screen.
+ */
 function showLevelMenu() {
   document.getElementById("startscreen").classList.add("hidden");
   document.getElementById("levelmenu").classList.remove("hidden");
   updateCoinsInLevelMenu();
 }
 
+/**
+ * Sets up click event handlers for all overlay buttons.
+ */
 function setupOverlayButtons() {
   setupGameOverButtons();
   setupEndScreenButtons();
   setupFinalOverlayButtons();
 }
 
+/**
+ * Configures buttons for the Game Over overlay.
+ */
 function setupGameOverButtons() {
   const tryAgainBtn = document.getElementById("tryAgainBtn");
   if (tryAgainBtn) {
@@ -70,6 +115,9 @@ function setupGameOverButtons() {
   }
 }
 
+/**
+ * Configures buttons for the End Screen overlay.
+ */
 function setupEndScreenButtons() {
   const playAgainBtn = document.getElementById("playAgainBtn");
   if (playAgainBtn) {
@@ -95,6 +143,9 @@ function setupEndScreenButtons() {
   }
 }
 
+/**
+ * Configures buttons for the Final Level overlay.
+ */
 function setupFinalOverlayButtons() {
   const playAgainBtnFinal = document.getElementById("playAgainBtnFinal");
   if (playAgainBtnFinal) {
@@ -114,15 +165,26 @@ function setupFinalOverlayButtons() {
   }
 }
 
+/**
+ * Adds the 'hidden' class to an element by its ID.
+ * @param {string} id - The element's ID.
+ */
 function hideOverlay(id) {
   document.getElementById(id).classList.add("hidden");
 }
 
+/**
+ * Hides the final level overlay and shows the main game canvas.
+ */
 function hideFinalOverlay() {
   finalOverlay.classList.add("hidden");
   gameCanvas.style.display = "block";
 }
 
+/**
+ * Shows the end screen overlay with a specified image.
+ * @param {string} imagePath - The path to the image.
+ */
 function showEndScreenWithButtons(imagePath) {
   const overlay = document.getElementById("endScreenOverlay");
   const img = document.getElementById("endScreenImage");
@@ -130,10 +192,16 @@ function showEndScreenWithButtons(imagePath) {
   overlay.classList.remove("hidden");
 }
 
+/**
+ * Shows the game over overlay.
+ */
 function showGameOverScreen() {
   document.getElementById("gameOverOverlay").classList.remove("hidden");
 }
 
+/**
+ * Sets up mobile control buttons to simulate keyboard input.
+ */
 function setupMobileControls() {
   const btnLeft = document.getElementById("btn-left");
   const btnRight = document.getElementById("btn-right");
@@ -142,8 +210,20 @@ function setupMobileControls() {
   const btnPause = document.getElementById("btn-pause");
   const btnMute = document.getElementById("btn-mute");
 
-  function pressKey(key) { keyboard[key] = true; }
-  function releaseKey(key) { keyboard[key] = false; }
+  /**
+   * Press a key on the virtual keyboard.
+   * @param {string} key - The keyboard key name.
+   */
+  function pressKey(key) {
+    window.keyboard[key] = true;
+  }
+  /**
+   * Release a key on the virtual keyboard.
+   * @param {string} key - The keyboard key name.
+   */
+  function releaseKey(key) {
+    window.keyboard[key] = false;
+  }
 
   btnLeft.addEventListener("touchstart", () => pressKey("LEFT"));
   btnLeft.addEventListener("touchend", () => releaseKey("LEFT"));
@@ -170,34 +250,39 @@ function setupMobileControls() {
   btnThrow.addEventListener("mouseleave", () => releaseKey("D"));
 
   btnPause.addEventListener("click", () => {
-    if (keyboard.P) {
-      keyboard.P = false;
-      keyboard.C = true;
+    if (window.keyboard.P) {
+      window.keyboard.P = false;
+      window.keyboard.C = true;
     } else {
-      keyboard.P = true;
-      keyboard.C = false;
+      window.keyboard.P = true;
+      window.keyboard.C = false;
     }
   });
 
   btnMute.addEventListener("click", () => {
-    if (isMuted) {
-      isMuted = false;
-      if (world) world.soundManager.unmuteAllSounds();
+    if (window.isMuted) {
+      window.isMuted = false;
+      if (window.world) window.world.soundManager.unmuteAllSounds();
       btnMute.textContent = "🔈";
     } else {
-      isMuted = true;
-      if (world) world.soundManager.muteAllSounds();
+      window.isMuted = true;
+      if (window.world) window.world.soundManager.muteAllSounds();
       btnMute.textContent = "🔇";
     }
   });
 }
 
-
+/**
+ * Starts the confetti animation.
+ */
 function startConfetti() {
   initializeConfetti();
   confettiAnimationId = requestAnimationFrame(drawConfetti);
 }
 
+/**
+ * Initializes the confetti pieces array with randomized confetti.
+ */
 function initializeConfetti() {
   const colors = ["#ff0a54", "#ff477e", "#ff85a1", "#fbb1b1", "#f9bec7"];
   confettiPieces = [];
@@ -206,6 +291,11 @@ function initializeConfetti() {
   }
 }
 
+/**
+ * Creates a single confetti piece with randomized attributes.
+ * @param {string[]} colors - Array of confetti colors.
+ * @returns {object} The confetti piece object.
+ */
 function createConfettiPiece(colors) {
   return {
     x: Math.random() * confettiCanvas.width,
@@ -221,12 +311,19 @@ function createConfettiPiece(colors) {
   };
 }
 
+/**
+ * Draws a frame of the confetti animation.
+ */
 function drawConfetti() {
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
   confettiPieces.forEach((p) => updateAndDrawConfetti(p));
   confettiAnimationId = requestAnimationFrame(drawConfetti);
 }
 
+/**
+ * Updates position and draws a single confetti piece.
+ * @param {object} p - A confetti piece object.
+ */
 function updateAndDrawConfetti(p) {
   p.tiltAngle += p.tiltAngleIncrement;
   p.y += p.speedY;
@@ -246,11 +343,19 @@ function updateAndDrawConfetti(p) {
   }
 }
 
+/**
+ * Stops the confetti animation and clears the canvas.
+ */
 function stopConfetti() {
   cancelAnimationFrame(confettiAnimationId);
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 }
 
+/**
+ * Formats milliseconds into a mm:ss time string.
+ * @param {number} ms - Time in milliseconds.
+ * @returns {string} Formatted time string.
+ */
 function formatTime(ms) {
   let totalSeconds = Math.floor(ms / 1000);
   let minutes = Math.floor(totalSeconds / 60);
@@ -258,6 +363,9 @@ function formatTime(ms) {
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
+/**
+ * Shows the final level overlay with confetti animation.
+ */
 function showFinalLevelOverlay() {
   finalOverlay.classList.remove("hidden");
   startConfetti();

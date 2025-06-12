@@ -1,3 +1,7 @@
+/**
+ * Class representing the final boss enemy.
+ * Extends MovableObject with animations and behaviors.
+ */
 class Endboss extends MovableObject {
   height = 420;
   width = 300;
@@ -47,7 +51,10 @@ class Endboss extends MovableObject {
   groundY = 48;
   flyY = -60;
 
-    constructor() {
+  /**
+   * Initializes the boss, loads images, sets initial position, and starts animation.
+   */
+  constructor() {
     super();
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
@@ -59,6 +66,9 @@ class Endboss extends MovableObject {
     this.animate();
   }
 
+  /**
+   * Main animation loop, handles states: dead, hurt, flying, chasing, attacking.
+   */
   animate() {
     this.animationInterval = setInterval(() => {
       if (this.world?.isPaused) return;
@@ -79,14 +89,23 @@ class Endboss extends MovableObject {
     }, 200);
   }
 
+  /**
+   * Plays death animation.
+   */
   animateDead() {
     this.playAnimation(this.IMAGES_DEAD);
   }
 
+  /**
+   * Plays hurt animation.
+   */
   animateHurt() {
     this.playAnimation(this.IMAGES_HURT);
   }
 
+  /**
+   * Handles flying animation and movement.
+   */
   animateFlying() {
     this.playAnimation(this.IMAGES_FLY);
     this.y = this.flyY + 10 * Math.sin(Date.now() / 500);
@@ -100,12 +119,18 @@ class Endboss extends MovableObject {
     this.moveRight(this.walkingSpeed);
   }
 
+  /**
+   * Randomly starts flying mode.
+   */
   tryStartFlying() {
     if (!this.isFlying && Math.random() < 0.005) {
       this.isFlying = true;
     }
   }
 
+  /**
+   * Decides movement: chase character or attack if in range.
+   */
   chaseOrAttack() {
     const character = this.world.character;
     const distance = character.x - this.x;
@@ -123,14 +148,25 @@ class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Moves the boss left by speed.
+   * @param {number} speed - Movement speed.
+   */
   moveLeft(speed = this.walkingSpeed) {
     this.x -= speed;
   }
 
+  /**
+   * Moves the boss right by speed.
+   * @param {number} speed - Movement speed.
+   */
   moveRight(speed = this.walkingSpeed) {
     this.x += speed;
   }
 
+  /**
+   * Called when boss is hit: reduces energy, updates bar, manages hurt or death.
+   */
   hit() {
     if (this.isDead) return;
     this.hits++;
@@ -148,6 +184,9 @@ class Endboss extends MovableObject {
     }
   }
 
+  /**
+   * Kills the boss, plays death animation, removes from enemy list after delay.
+   */
   die() {
     this.isDead = true;
     this.isHurt = false;

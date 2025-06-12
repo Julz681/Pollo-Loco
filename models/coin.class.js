@@ -1,7 +1,17 @@
+/**
+ * Represents a collectible coin with wobble animation.
+ * Extends MovableObject to add floating effect.
+ */
 class Coin extends MovableObject {
   baseY;
   wobbleOffset;
 
+  /**
+   * Creates a coin at position (x, y) with an optional wobble offset.
+   * @param {number} x - Horizontal position of the coin.
+   * @param {number} y - Vertical base position of the coin.
+   * @param {number} [wobbleOffset=0] - Phase offset for wobble animation.
+   */
   constructor(x, y, wobbleOffset = 0) {
     super();
     this.loadImage("img/8_coin/coin_1.png");
@@ -13,6 +23,9 @@ class Coin extends MovableObject {
     this.wobbleOffset = wobbleOffset;
   }
 
+  /**
+   * Animates the coin with a smooth vertical wobble.
+   */
   animateWobble() {
     setInterval(() => {
       const time = Date.now() / 500;

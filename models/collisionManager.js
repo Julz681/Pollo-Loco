@@ -1,8 +1,18 @@
+/**
+ * Manages all collision checks and their effects in the game world.
+ */
 class CollisionManager {
+  /**
+   * @param {World} world - The game world instance this manager operates on.
+   */
   constructor(world) {
     this.world = world;
   }
 
+  /**
+   * Checks collisions between the character and enemies.
+   * If collision occurs, character takes damage and updates UI.
+   */
   checkEnemyCollisions() {
     this.world.level.enemies.forEach(enemy => {
       if (enemy.isDead) return;
@@ -15,6 +25,10 @@ class CollisionManager {
     });
   }
 
+  /**
+   * Checks collisions between thrown bottles and enemies.
+   * Handles bottle hit effects and enemy damage or death.
+   */
   checkBottleCollisions() {
     this.world.level.enemies.forEach(enemy => {
       this.world.throwableObject.forEach(bottle => {
@@ -25,6 +39,11 @@ class CollisionManager {
     });
   }
 
+  /**
+   * Processes the effect of a bottle hitting an enemy.
+   * @param {Object} enemy - The enemy hit by the bottle.
+   * @param {Object} bottle - The thrown bottle.
+   */
   handleBottleHit(enemy, bottle) {
     bottle.hasHit = true;
     bottle.splash();
@@ -41,6 +60,10 @@ class CollisionManager {
     }
   }
 
+  /**
+   * Handles collection of bottles by the character.
+   * Increases bottle status bar and plays sound.
+   */
   collectBottles() {
     for (let i = this.world.level.bottles.length - 1; i >= 0; i--) {
       let bottle = this.world.level.bottles[i];
@@ -53,6 +76,10 @@ class CollisionManager {
     }
   }
 
+  /**
+   * Handles collection of coins by the character.
+   * Updates coin count and plays coin sound.
+   */
   collectCoins() {
     for (let i = this.world.level.coins.length - 1; i >= 0; i--) {
       let coin = this.world.level.coins[i];
@@ -66,6 +93,10 @@ class CollisionManager {
     }
   }
 
+  /**
+   * Handles collection of hearts by the character.
+   * Increases character energy and plays heart sound.
+   */
   collectHearts() {
     if (!this.world.level.hearts) return;
     for (let i = this.world.level.hearts.length - 1; i >= 0; i--) {
@@ -78,22 +109,23 @@ class CollisionManager {
     }
   }
 
-checkGameOverOrWin() {
-  if (this.world.character.isDead() && !this.world.showingEndScreen) {
-    this.world.showingEndScreen = true;
-    setTimeout(() => {
-      this.world.handleGameOver();
-    }, 1500);
+  /**
+   * Checks if the game is over or won, triggers appropriate handlers.
+   */
+  checkGameOverOrWin() {
+    if (this.world.character.isDead() && !this.world.showingEndScreen) {
+      this.world.showingEndScreen = true;
+      setTimeout(() => {
+        this.world.handleGameOver();
+      }, 1500);
+    }
+
+    const endboss = this.world.level.enemies.find(e => e instanceof Endboss);
+    if (endboss && endboss.isDead && !this.world.showingEndScreen) {
+      this.world.showingEndScreen = true;
+      setTimeout(() => {
+        this.world.handleGameWin();
+      }, 1500);
+    }
   }
-
-  const endboss = this.world.level.enemies.find(e => e instanceof Endboss);
-  if (endboss && endboss.isDead && !this.world.showingEndScreen) {
-    this.world.showingEndScreen = true;
-    setTimeout(() => {
-      this.world.handleGameWin();
-    }, 1500);
-  }
-}
-
-
 }

@@ -1,3 +1,7 @@
+/**
+ * Creates and returns Level 7 configuration.
+ * @returns {Level} Configured Level 7 instance.
+ */
 window.createLevel7 = function () {
   const level_start_x = 600;
   const level_end_x = 14000;
@@ -5,13 +9,21 @@ window.createLevel7 = function () {
   const coinsStartX = 800;
   const coinsWidth = 12000;
 
+  // Enemies setup
   const enemies = createEnemies(level_start_x, usableWidth, 15, 12, 13500);
+
+  // Clouds and background objects
   const clouds = createClouds(25);
   const backgroundObjects = createBackgroundObjects(25);
+
+  // Bottles and coins distribution
   const bottles = createBottles(18, level_start_x, usableWidth);
   const coins = createDiagonalCoins(10, 5, coinsStartX, coinsWidth);
+
+  // Hearts at fixed positions
   const hearts = createHearts();
 
+  // Construct and return the Level instance
   return new Level(
     enemies,
     clouds,

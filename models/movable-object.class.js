@@ -1,3 +1,7 @@
+/**
+ * Class representing a movable game object with physics and animation.
+ * Extends DrawableObject.
+ */
 class MovableObject extends DrawableObject {
   speed = 0.2;
   otherDirection = false;
@@ -6,6 +10,9 @@ class MovableObject extends DrawableObject {
   energy = 100;
   lastHit = 0;
 
+  /**
+   * Applies gravity to the object, affecting vertical position and speed.
+   */
   applyGravity() {
     setInterval(() => {
       if (this.isAboveGround() || this.speedY > 0) {
@@ -15,6 +22,10 @@ class MovableObject extends DrawableObject {
     }, 1000 / 25);
   }
 
+  /**
+   * Checks if the object is above ground level.
+   * @returns {boolean} True if above ground.
+   */
   isAboveGround() {
     if (this instanceof throwableObject) {
       return true;
@@ -23,6 +34,11 @@ class MovableObject extends DrawableObject {
     }
   }
 
+  /**
+   * Checks collision with another movable object.
+   * @param {MovableObject} mo - Other movable object.
+   * @returns {boolean} True if colliding.
+   */
   isColliding(mo) {
     const offset = 10;
     return (
@@ -33,6 +49,9 @@ class MovableObject extends DrawableObject {
     );
   }
 
+  /**
+   * Reduces energy when hit and records the time of last hit.
+   */
   hit() {
     this.energy -= 10;
     if (this.energy < 0) {
@@ -42,24 +61,41 @@ class MovableObject extends DrawableObject {
     }
   }
 
+  /**
+   * Checks if the object was hit within the last second.
+   * @returns {boolean} True if recently hurt.
+   */
   isHurt() {
-    let timepassed = new Date().getTime() - this.lastHit;
-    timepassed = timepassed / 1000;
+    let timepassed = (new Date().getTime() - this.lastHit) / 1000;
     return timepassed < 1;
   }
 
+  /**
+   * Checks if the object is dead (energy is 0).
+   * @returns {boolean} True if dead.
+   */
   isDead() {
     return this.energy == 0;
   }
 
+  /**
+   * Moves the object to the right.
+   */
   moveRight() {
     this.x += this.speed;
   }
 
+  /**
+   * Moves the object to the left.
+   */
   moveLeft() {
     this.x -= this.speed;
   }
 
+  /**
+   * Plays animation by cycling through provided image paths.
+   * @param {string[]} images - Array of image paths.
+   */
   playAnimation(images) {
     let i = this.currentImage % images.length;
     let path = images[i];
@@ -67,6 +103,9 @@ class MovableObject extends DrawableObject {
     this.currentImage++;
   }
 
+  /**
+   * Makes the object jump by setting vertical speed.
+   */
   jump() {
     this.speedY = 30;
   }

@@ -1,3 +1,4 @@
+ /** Main game world containing characters, enemies, canvas and game logic.*/
 class World {
   character = new Character();
   canvas;
@@ -20,6 +21,10 @@ class World {
   startTime = 0;
   isMuted = false;
 
+  /** Initializes the world with canvas, keyboard input and level data.
+   * @param {HTMLCanvasElement} canvas - The canvas element to draw on.
+   * @param {Keyboard} keyboard - Keyboard input manager.
+   * @param {Level} level - Current game level.*/
   constructor(canvas, keyboard, level) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
@@ -34,6 +39,7 @@ class World {
     this.run();
   }
 
+  /** Setup sounds and mute/unmute based on stored preference */
   _setupSounds() {
     this.sounds.background.loop = true;
     this.sounds.background.volume = 0.5;
@@ -48,6 +54,7 @@ class World {
     }
   }
 
+  /** Assign this world instance to character and enemies */
   setWorld() {
     this.character.world = this;
     this.level.enemies.forEach((enemy) => (enemy.world = this));
@@ -55,23 +62,24 @@ class World {
     this.pauseImage.src = "img/You won, you lost/Game_paused.png";
   }
 
+  /** Main game loop running periodically */
   run() {
     setInterval(() => {
       this.handlePauseToggle();
       if (this.isPaused || this.isGameOver) return;
-      if (this.keyboard.UP) {
-        this.character.jump();
-      }
+      if (this.keyboard.UP) this.character.jump();
       this.checkCollisions();
       this.checkThrowObjects();
     }, 100);
   }
 
+  /** Handle pause and continue controls */
   handlePauseToggle() {
     if (this.keyboard.P) this.isPaused = true;
     if (this.keyboard.C) this.isPaused = false;
   }
 
+  /** Check if player threw a bottle */
   checkThrowObjects() {
     if (
       this.keyboard.D &&
@@ -81,6 +89,7 @@ class World {
       this.throwBottle();
   }
 
+  /** Logic to throw a bottle */
   throwBottle() {
     this.createBottle();
     this.startThrowAnimation();
@@ -88,6 +97,7 @@ class World {
     this.soundManager.playThrowSound();
   }
 
+  /** Create a new bottle object at character position */
   createBottle() {
     const offsetX = this.character.otherDirection ? -100 : 100;
     const bottle = new throwableObject(
@@ -99,6 +109,7 @@ class World {
     this.throwableObject.push(bottle);
   }
 
+  /** Animate character throwing action */
   startThrowAnimation() {
     this.character.isThrowing = true;
     this.character.loadImage(this.character.IMAGE_THROW[0]);
@@ -108,10 +119,12 @@ class World {
     }, 300);
   }
 
+  /** Update bottle status bar after throwing */
   updateBottleStatus() {
     this.statusBarBottle.setPercentage(this.statusBarBottle.percentage - 20);
   }
 
+  /** Check all collision types */
   checkCollisions() {
     this.collisionManager.checkEnemyCollisions();
     this.collisionManager.checkBottleCollisions();
@@ -121,17 +134,20 @@ class World {
     this.collisionManager.checkGameOverOrWin();
   }
 
+  /** Increase character's energy and update status bar */
   updateCharacterEnergy() {
     const newEnergy = Math.min(this.character.energy + 20, 100);
     this.character.energy = newEnergy;
     this.statusBar.setPercentage(newEnergy);
   }
 
+  /** Handle game over sequence */
   handleGameOver() {
     this.showingEndScreen = true;
     setTimeout(() => this._doGameOver(), 1000);
   }
 
+  /** Finalize game over */
   _doGameOver() {
     this.isGameOver = true;
     this.soundManager.pauseBackgroundSound();
@@ -139,12 +155,14 @@ class World {
     this.soundManager.playDieSound();
   }
 
+  /** Handle game win sequence */
   handleGameWin() {
     this.soundManager.playEndbossDieSound();
     this._saveBestCoins();
     this._doGameWin();
   }
 
+  /** Save best coins to local storage */
   _saveBestCoins() {
     const storageKey = `coinsLevel${currentLevel}`;
     const previousBest = parseInt(localStorage.getItem(storageKey)) || 0;
@@ -153,6 +171,7 @@ class World {
     }
   }
 
+  /** Finalize game win */
   _doGameWin() {
     this.isGameOver = true;
     this.soundManager.pauseBackgroundSound();
@@ -163,6 +182,7 @@ class World {
     }
   }
 
+  /** Show final level overlay with applause and confetti */
   showFinalLevelOverlayWithApplause() {
     showFinalLevelOverlay();
     this._playApplause();
@@ -172,12 +192,14 @@ class World {
     }, 5000);
   }
 
+  /** Show win screen and play applause */
   showWinScreenWithApplause() {
     showEndScreenWithButtons("img/You won, you lost/You won A.png");
     this._updateBestCoinsDisplay();
     setTimeout(() => this._playApplause(), 200);
   }
 
+  /** Play applause sound */
   _playApplause() {
     if (!this.sounds.applause.paused) {
       this.sounds.applause.pause();
@@ -186,6 +208,7 @@ class World {
     this.sounds.applause.play();
   }
 
+  /** Update the best coins display in UI */
   _updateBestCoinsDisplay() {
     const storageKey = `coinsLevel${currentLevel}`;
     const bestCoins = localStorage.getItem(storageKey) || 0;
@@ -193,6 +216,7 @@ class World {
     if (coinsDisplay) coinsDisplay.textContent = `Best Coins: ${bestCoins}`;
   }
 
+  /** Main draw loop */
   draw() {
     if (this.isPaused) return this.drawPausedScreen();
     if (this.isGameOver) return this.drawGameOverScreen();
@@ -208,6 +232,7 @@ class World {
     requestAnimationFrame(() => this.draw());
   }
 
+  /** Draw pause screen */
   drawPausedScreen() {
     if (!this.sounds.background.paused) this.sounds.background.pause();
     if (this.sounds.gamePaused.paused) {
@@ -219,6 +244,7 @@ class World {
     requestAnimationFrame(() => this.draw());
   }
 
+  /** Draw game over screen */
   drawGameOverScreen() {
     this.clearCanvas();
     this.ctx.fillStyle = "black";
@@ -227,15 +253,18 @@ class World {
     requestAnimationFrame(() => this.draw());
   }
 
+  /** Resume background sound if needed */
   resumeBackgroundSound() {
     if (!this.sounds.gamePaused.paused) this.sounds.gamePaused.pause();
     if (this.sounds.background.paused) this.sounds.background.play();
   }
 
+  /** Clear the canvas */
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
+  /** Draw pause image on canvas */
   drawPauseScreen() {
     this.ctx.drawImage(
       this.pauseImage,
@@ -246,6 +275,7 @@ class World {
     );
   }
 
+  /** Draw background layers and objects */
   drawBackgroundObjects() {
     this._drawObjects(this.level.backgroundObjects);
     this._drawObjects(this.level.clouds);
@@ -256,24 +286,29 @@ class World {
     this._drawObjects(this.throwableObject);
   }
 
+  /** Helper to draw a list of objects */
   _drawObjects(objects) {
     objects.forEach((obj) => this.addToMap(obj));
   }
 
+  /** Draw character and enemies */
   drawCharacterAndEnemies() {
     this.addToMap(this.character);
   }
 
+  /** Draw HUD elements */
   drawHUD() {
     this.addToMap(this.statusBar);
     this.addToMap(this.statusBarBottle);
     this.addToMap(this.coinBar);
   }
 
+  /** Draw endboss health bar if boss in view */
   drawEndbossBarIfVisible() {
     if (this.endbossInView()) this.addToMap(this.endbossBar);
   }
 
+  /** Draw end screen if showing */
   drawEndScreenIfShowing() {
     if (!this.showingEndScreen || !this.endScreenImage) return;
     this.ctx.drawImage(
@@ -285,10 +320,11 @@ class World {
     );
   }
 
+  /** Draw a movable object, flipping image if needed.
+   * @param {MovableObject} movableObject */
   addToMap(movableObject) {
     if (movableObject.otherDirection) this._flipImage(movableObject);
     movableObject.draw(this.ctx);
-    // movableObject.drawFrame(this.ctx);
     if (movableObject.otherDirection) this._flipImageBack(movableObject);
   }
 
@@ -304,11 +340,14 @@ class World {
     this.ctx.restore();
   }
 
+  /** Check if endboss is in view */
   endbossInView() {
     const boss = this.level.enemies.find((e) => e instanceof Endboss);
     return boss && this.character.x + 400 >= boss.x && !boss.isDead;
   }
 
+  /**Show end screen image sliding in.
+   * @param {string} path - Image source for end screen.*/
   showEndScreen(path) {
     this.showingEndScreen = true;
     this.endScreenImage = new Image();
@@ -317,18 +356,21 @@ class World {
     this.animateEndScreen();
   }
 
+  /** Animate end screen sliding from right */
   animateEndScreen() {
     if (this.endScreenX <= this.canvas.width / 2 - 200) return;
     this.endScreenX -= 10;
     requestAnimationFrame(() => this.animateEndScreen());
   }
 
+  /** Update mute icon visibility */
   updateMuteIcon() {
     const muteIcon = document.getElementById("muteIcon");
     if (!muteIcon) return;
     muteIcon.style.display = this.isMuted ? "block" : "none";
   }
 
+  /** Handle winning the final level */
   handleFinalLevelWin() {
     this.showingEndScreen = true;
     this.isGameOver = true;
@@ -340,6 +382,7 @@ class World {
   }
 }
 
+/** Checks and handles device orientation, shows overlay if portrait */
 function checkOrientation() {
   const overlay = document.getElementById("rotateScreenOverlay");
   if (window.innerWidth < window.innerHeight) {

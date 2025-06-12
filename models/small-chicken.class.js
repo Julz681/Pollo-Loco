@@ -1,5 +1,9 @@
+/**
+ * Class representing a small chicken enemy.
+ * Extends MovableObject.
+ */
 class SmallChicken extends MovableObject {
-  y = 370;        
+  y = 370;
   height = 50;
   width = 40;
 
@@ -15,16 +19,22 @@ class SmallChicken extends MovableObject {
 
   isDead = false;
 
+  /**
+   * Creates a small chicken instance with randomized position and speed.
+   */
   constructor() {
     super();
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_DEAD);
     this.x = 200 + Math.random() * 500;
-    this.speed = 0.5 + Math.random() * 0.5;  
+    this.speed = 0.5 + Math.random() * 0.5;
     this.animate();
   }
 
+  /**
+   * Starts movement and animation intervals.
+   */
   animate() {
     setInterval(() => {
       if (this.world?.isPaused) return;
@@ -39,6 +49,10 @@ class SmallChicken extends MovableObject {
     }, 80);
   }
 
+  /**
+   * Handles the death of the small chicken.
+   * Stops movement, switches to dead image, and removes from enemies list.
+   */
   die() {
     this.isDead = true;
     this.speed = 0;

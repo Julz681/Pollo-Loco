@@ -1,8 +1,15 @@
+/**
+ * Manages all game sound effects and music.
+ */
 class SoundManager {
+  /**
+   * @param {World} world - Reference to the game world.
+   */
   constructor(world) {
     this.world = world;
   }
 
+  /** Initializes all sound objects with their audio files. */
   initSounds() {
     this.world.sounds = {
       background: new Audio("audio/background.mp3"),
@@ -22,6 +29,7 @@ class SoundManager {
     };
   }
 
+  /** Mutes all sounds and pauses any currently playing audio. */
   muteAllSounds() {
     Object.values(this.world.sounds).forEach((sound) => {
       sound.muted = true;
@@ -32,6 +40,7 @@ class SoundManager {
     this.world.updateMuteIcon();
   }
 
+  /** Unmutes all sounds and resumes background music if appropriate. */
   unmuteAllSounds() {
     Object.values(this.world.sounds).forEach((sound) => {
       sound.muted = false;
@@ -44,52 +53,62 @@ class SoundManager {
     this.world.updateMuteIcon();
   }
 
+  /** Plays the sound effect for throwing a bottle. */
   playThrowSound() {
     this.world.sounds.throw.currentTime = 0;
     this.world.sounds.throw.play();
   }
 
+  /** Plays the sound effect when the character is hurt. */
   playHurtSound() {
     this.world.sounds.hurt.currentTime = 0;
     this.world.sounds.hurt.play();
   }
 
+  /** Plays the sound effect when a chicken dies. */
   playChickenDieSound() {
     this.world.sounds.chickenDie.currentTime = 0;
     this.world.sounds.chickenDie.play();
   }
 
+  /** Plays the sound effect when the endboss is hurt. */
   playEndbossHurtSound() {
     this.world.sounds.endbossHurt.currentTime = 0;
     this.world.sounds.endbossHurt.play();
   }
 
+  /** Plays the sound effect when a bottle is collected. */
   playBottleFindSound() {
     this.world.sounds.bottleFind.currentTime = 0;
     this.world.sounds.bottleFind.play();
   }
 
+  /** Plays the sound effect when a coin is collected. */
   playCoinSound() {
     this.world.sounds.coin.currentTime = 0;
     this.world.sounds.coin.volume = 0.5;
     this.world.sounds.coin.play();
   }
 
+  /** Plays the sound effect when a heart is collected. */
   playHeartSound() {
     this.world.sounds.heart.currentTime = 0;
     this.world.sounds.heart.play();
   }
 
+  /** Plays the sound effect when the character dies. */
   playDieSound() {
     this.world.sounds.die.currentTime = 0;
     this.world.sounds.die.play();
   }
 
+  /** Plays the sound effect when the endboss dies. */
   playEndbossDieSound() {
     this.world.sounds.endbossDie.currentTime = 0;
     this.world.sounds.endbossDie.play();
   }
 
+  /** Pauses and resets the background music. */
   pauseBackgroundSound() {
     this.world.sounds.background.pause();
     this.world.sounds.background.currentTime = 0;

@@ -1,7 +1,12 @@
+/**
+ * Main character controlled by the player.
+ * Extends MovableObject and handles movement, animations, and states.
+ */
 class Character extends MovableObject {
   height = 280;
   y = 80;
   speed = 10;
+
   IMAGES_WALKING = [
     "img/2_character_pepe/2_walk/W-21.png",
     "img/2_character_pepe/2_walk/W-22.png",
@@ -40,11 +45,14 @@ class Character extends MovableObject {
   ];
 
   IMAGE_THROW = ["img/2_character_pepe/1_idle/throw_pepe.png"];
-  isThrowing = false;
 
+  isThrowing = false;
   world;
   wasAboveGround = false;
 
+  /**
+   * Initializes character with default walking image and sets up animations and gravity.
+   */
   constructor() {
     super().loadImage(this.IMAGES_WALKING[0]);
     this.loadAllImages();
@@ -52,6 +60,9 @@ class Character extends MovableObject {
     this.animate();
   }
 
+  /**
+   * Loads all required images for animations.
+   */
   loadAllImages() {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
@@ -60,6 +71,9 @@ class Character extends MovableObject {
     this.loadImages(this.IMAGE_THROW);
   }
 
+  /**
+   * Starts animation loops for movement and state changes.
+   */
   animate() {
     setInterval(() => {
       if (this.world.isPaused) return;
@@ -74,6 +88,9 @@ class Character extends MovableObject {
     }, 20);
   }
 
+  /**
+   * Handles character movement based on keyboard input.
+   */
   handleMovement() {
     if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
       this.moveRight();
@@ -87,6 +104,9 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Updates character animation based on current state.
+   */
   handleAnimations() {
     if (this.isDead()) {
       this.playAnimation(this.IMAGES_DEAD);
@@ -101,6 +121,9 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Sets character image for jumping animation based on vertical speed.
+   */
   animateJump() {
     if (this.speedY > 5) {
       this.img = this.imageCache[this.IMAGES_JUMPING[2]];
@@ -111,15 +134,21 @@ class Character extends MovableObject {
     }
   }
 
+  /**
+   * Makes the character jump if not already in air.
+   */
   jump() {
     if (!this.isAboveGround()) {
-    this.speedY = 25;
-    this.world.sounds.jump_sound.currentTime = 0;
-    this.world.sounds.jump_sound.volume = 0.2;
-    this.world.sounds.jump_sound.play();
+      this.speedY = 25;
+      this.world.sounds.jump_sound.currentTime = 0;
+      this.world.sounds.jump_sound.volume = 0.2;
+      this.world.sounds.jump_sound.play();
     }
   }
 
+  /**
+   * Handles the transition from being airborne back to the ground.
+   */
   onLand() {
     if (!this.wasAboveGround && this.isAboveGround()) {
       this.wasAboveGround = true;

@@ -1,3 +1,7 @@
+/**
+ * Creates and returns Level 8 configuration.
+ * @returns {Level} Configured Level 8 instance.
+ */
 window.createLevel8 = function () {
   const level_start_x = 600;
   const level_end_x = 16000;
@@ -26,6 +30,10 @@ window.createLevel8 = function () {
   );
 };
 
+/**
+ * Creates wobbling coins arranged in rows for Level 8.
+ * @returns {Coin[]} Array of animated wobbling Coin objects.
+ */
 function createWobbleCoins() {
   const coins = [];
   const spacingX = 40;
@@ -36,7 +44,6 @@ function createWobbleCoins() {
   const level_start_x = 600;
   const level_end_x = 15000;
   const usableWidth = level_end_x - level_start_x;
-
   const totalCoinsWidth = coinsPerRow * spacingX;
   const rowSpacingX = (usableWidth - totalCoinsWidth) / (rowCount - 1);
 

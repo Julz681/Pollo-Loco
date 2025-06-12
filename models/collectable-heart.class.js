@@ -1,4 +1,13 @@
+/**
+ * Represents a collectible heart that wobbles up and down.
+ * Extends MovableObject to include wobble animation.
+ */
 class CollectableHeart extends MovableObject {
+  /**
+   * Creates a heart collectible at the specified (x, y) position.
+   * @param {number} x - Horizontal position of the heart.
+   * @param {number} y - Vertical position of the heart.
+   */
   constructor(x, y) {
     super();
     this.loadImage("img/7_statusbars/3_icons/icon_health.png");
@@ -11,6 +20,9 @@ class CollectableHeart extends MovableObject {
     this.animateWobble();
   }
 
+  /**
+   * Animates the heart with a smooth vertical wobble effect.
+   */
   animateWobble() {
     setInterval(() => {
       const time = Date.now() / 600;
