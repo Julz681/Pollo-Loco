@@ -27,12 +27,16 @@ function getMaxCoinsForLevel(levelNumber) {
 
 function updateCoinsInLevelMenu() {
   for (let level = 1; level <= 8; level++) {
-    const maxCoins = getMaxCoinsForLevel(level);
-    const collectedCoins = localStorage.getItem(`coinsLevel${level}`) || 0;
-    const display = document.getElementById(`coinsLevel${level}Display`);
-    if (display) {
-      display.innerHTML = `${collectedCoins} / ${maxCoins} <img src="img/8_coin/coin_1.png" alt="Coin" style="width:70px; vertical-align:middle;margin-left:-20px;">`;
-    }
+    updateCoinsDisplay(level);
+  }
+}
+
+function updateCoinsDisplay(level) {
+  const maxCoins = getMaxCoinsForLevel(level);
+  const collectedCoins = localStorage.getItem(`coinsLevel${level}`) || 0;
+  const display = document.getElementById(`coinsLevel${level}Display`);
+  if (display) {
+    display.innerHTML = `${collectedCoins} / ${maxCoins} <img src="img/8_coin/coin_1.png" alt="Coin" style="width:70px; vertical-align:middle;margin-left:-20px;">`;
   }
 }
 
@@ -42,61 +46,83 @@ function showLevelMenu() {
   updateCoinsInLevelMenu();
 }
 
-window.addEventListener("load", () => {
-  initFinalOverlay();
-  showStartscreen();
+// Globals for overlays and canvas
+let finalOverlay;
+let confettiCanvas;
+let confettiCtx;
+let confettiAnimationId;
+let gameCanvas;
 
-  // Game Over Overlay Buttons
+window.addEventListener("load", () => {
+  initOverlays();
+  setupOverlayButtons();
+  setupMobileControls();  // <--- Mobile Controls Setup
+  showStartscreen();
+});
+
+function initOverlays() {
+  finalOverlay = document.getElementById("finalLevelOverlay");
+  confettiCanvas = document.getElementById("confettiCanvas");
+  confettiCtx = confettiCanvas.getContext("2d");
+  confettiCanvas.width = 720;
+  confettiCanvas.height = 480;
+  gameCanvas = document.getElementById("canvas");
+}
+
+function setupOverlayButtons() {
+  setupGameOverButtons();
+  setupEndScreenButtons();
+  setupFinalOverlayButtons();
+}
+
+function setupGameOverButtons() {
   const tryAgainBtn = document.getElementById("tryAgainBtn");
   if (tryAgainBtn) {
     tryAgainBtn.onclick = () => {
-      document.getElementById("gameOverOverlay").classList.add("hidden");
+      hideOverlay("gameOverOverlay");
       startGame(currentLevel);
     };
   }
   const backToMenuBtnGameOver = document.getElementById("backToMenuBtnGameOver");
   if (backToMenuBtnGameOver) {
     backToMenuBtnGameOver.onclick = () => {
-      document.getElementById("gameOverOverlay").classList.add("hidden");
+      hideOverlay("gameOverOverlay");
       showLevelMenu();
     };
   }
+}
 
-  // End Screen Overlay Buttons
+function setupEndScreenButtons() {
   const playAgainBtn = document.getElementById("playAgainBtn");
   if (playAgainBtn) {
     playAgainBtn.onclick = () => {
-      document.getElementById("endScreenOverlay").classList.add("hidden");
+      hideOverlay("endScreenOverlay");
       startGame(currentLevel);
     };
   }
   const nextLevelBtn = document.getElementById("nextLevelBtn");
   if (nextLevelBtn) {
     nextLevelBtn.onclick = () => {
-      document.getElementById("endScreenOverlay").classList.add("hidden");
-      if (currentLevel < 8) {
-        startGame(currentLevel + 1);
-      } else {
-        // Wenn letzte Level erreicht ist, zurück zum Menü ohne Alert
-        showLevelMenu();
-      }
+      hideOverlay("endScreenOverlay");
+      if (currentLevel < 8) startGame(currentLevel + 1);
+      else showLevelMenu();
     };
   }
   const backToMenuBtnEndScreen = document.getElementById("backToMenuBtnEndScreen");
   if (backToMenuBtnEndScreen) {
     backToMenuBtnEndScreen.onclick = () => {
-      document.getElementById("endScreenOverlay").classList.add("hidden");
+      hideOverlay("endScreenOverlay");
       showLevelMenu();
     };
   }
+}
 
-  // Final Level Overlay Buttons
+function setupFinalOverlayButtons() {
   const playAgainBtnFinal = document.getElementById("playAgainBtnFinal");
   if (playAgainBtnFinal) {
     playAgainBtnFinal.onclick = () => {
       stopConfetti();
-      document.getElementById("finalLevelOverlay").classList.add("hidden");
-      document.getElementById("canvas").style.display = "block";
+      hideFinalOverlay();
       startGame(1);
     };
   }
@@ -104,12 +130,20 @@ window.addEventListener("load", () => {
   if (backToMenuBtnFinal) {
     backToMenuBtnFinal.onclick = () => {
       stopConfetti();
-      document.getElementById("finalLevelOverlay").classList.add("hidden");
-      document.getElementById("canvas").style.display = "none";
+      hideFinalOverlay();
       showLevelMenu();
     };
   }
-});
+}
+
+function hideOverlay(id) {
+  document.getElementById(id).classList.add("hidden");
+}
+
+function hideFinalOverlay() {
+  finalOverlay.classList.add("hidden");
+  gameCanvas.style.display = "block";
+}
 
 function startGame(levelNumber) {
   currentLevel = levelNumber;
@@ -119,102 +153,79 @@ function startGame(levelNumber) {
   keyboard = new Keyboard();
   canvas = document.getElementById("canvas");
 
-  let level;
-
-  switch (levelNumber) {
-    case 1:
-      level = createLevel1();
-      break;
-    case 2:
-      level = createLevel2();
-      break;
-    case 3:
-      level = createLevel3();
-      break;
-    case 4:
-      level = createLevel4();
-      break;
-    case 5:
-      level = createLevel5();
-      break;
-    case 6:
-      level = createLevel6();
-      break;
-    case 7:
-      level = createLevel7();
-      break;
-    case 8:
-      level = createLevel8();
-      break;
-    default:
-      level = createLevel1();
-  }
-
+  let level = getLevel(levelNumber);
   world = new World(canvas, keyboard, level);
 
-  if (levelNumber === 8) {
-    world.startTime = Date.now();
-    world.deaths = 0;
-    world.coinsCollectedFinal = 0;
+  if (levelNumber === 8) resetFinalLevelStats();
+}
+
+function getLevel(levelNumber) {
+  switch (levelNumber) {
+    case 1: return createLevel1();
+    case 2: return createLevel2();
+    case 3: return createLevel3();
+    case 4: return createLevel4();
+    case 5: return createLevel5();
+    case 6: return createLevel6();
+    case 7: return createLevel7();
+    case 8: return createLevel8();
+    default: return createLevel1();
   }
 }
 
-document.addEventListener("keydown", (e) => {
-  if (world?.isGameOver) return;
+function resetFinalLevelStats() {
+  world.startTime = Date.now();
+  world.deaths = 0;
+  world.coinsCollectedFinal = 0;
+}
 
-  // Mute mit Shift + M
+document.addEventListener("keydown", handleKeyDown);
+document.addEventListener("keyup", handleKeyUp);
+
+function handleKeyDown(e) {
+  if (world?.isGameOver) return;
   if (e.shiftKey && (e.key === "m" || e.key === "M")) {
     isMuted = true;
-    if (world) world.muteAllSounds();
-    return; // keine weiteren Aktionen bei diesem Tastendruck
+    if (world) world.soundManager.muteAllSounds();
+    return;
   }
-
-  // Unmute mit Shift + U
   if (e.shiftKey && (e.key === "u" || e.key === "U")) {
     isMuted = false;
-    if (world) world.unmuteAllSounds();
+    if (world) world.soundManager.unmuteAllSounds();
     return;
   }
 
-  if (e.keyCode == 39) keyboard.RIGHT = true;
-  if (e.keyCode == 37) keyboard.LEFT = true;
-  if (e.keyCode == 38) keyboard.UP = true;
-  if (e.keyCode == 40) keyboard.DOWN = true;
-  if (e.keyCode == 32) keyboard.SPACE = true;
-  if (e.keyCode == 68) keyboard.D = true;
-  if (e.keyCode == 80) keyboard.P = true;
-  if (e.keyCode == 67) keyboard.C = true;
-
-  if (e.keyCode == 16) keyboard.SHIFT = true;
-  if (e.keyCode == 83) keyboard.S = true;
-  if (e.keyCode == 70) keyboard.F = true;
+  setKeyPressed(e.keyCode, true);
 
   if (keyboard.SHIFT && keyboard.F) {
     e.preventDefault();
     enterFullscreen();
   }
-
   if (keyboard.SHIFT && keyboard.S) {
     e.preventDefault();
     exitFullscreen();
   }
-});
+}
 
+function handleKeyUp(e) {
+  setKeyPressed(e.keyCode, false);
+}
 
-document.addEventListener("keyup", (e) => {
-  if (e.keyCode == 39) keyboard.RIGHT = false;
-  if (e.keyCode == 37) keyboard.LEFT = false;
-  if (e.keyCode == 38) keyboard.UP = false;
-  if (e.keyCode == 40) keyboard.DOWN = false;
-  if (e.keyCode == 32) keyboard.SPACE = false;
-  if (e.keyCode == 68) keyboard.D = false;
-  if (e.keyCode == 80) keyboard.P = false;
-  if (e.keyCode == 67) keyboard.C = false;
-
-  if (e.keyCode == 16) keyboard.SHIFT = false;
-  if (e.keyCode == 83) keyboard.S = false;
-  if (e.keyCode == 70) keyboard.F = false;
-});
+function setKeyPressed(keyCode, pressed) {
+  switch (keyCode) {
+    case 39: keyboard.RIGHT = pressed; break;
+    case 37: keyboard.LEFT = pressed; break;
+    case 38: keyboard.UP = pressed; break;
+    case 40: keyboard.DOWN = pressed; break;
+    case 32: keyboard.SPACE = pressed; break;
+    case 68: keyboard.D = pressed; break;
+    case 80: keyboard.P = pressed; break;
+    case 67: keyboard.C = pressed; break;
+    case 16: keyboard.SHIFT = pressed; break;
+    case 83: keyboard.S = pressed; break;
+    case 70: keyboard.F = pressed; break;
+  }
+}
 
 function enterFullscreen() {
   const canvas = document.getElementById("canvas");
@@ -248,77 +259,65 @@ window.addEventListener("resize", () => {
 function showEndScreenWithButtons(imagePath) {
   const overlay = document.getElementById("endScreenOverlay");
   const img = document.getElementById("endScreenImage");
-  const playAgainBtn = document.getElementById("playAgainBtn");
-  const nextLevelBtn = document.getElementById("nextLevelBtn");
-  const backToMenuBtn = document.getElementById("backToMenuBtnEndScreen");
-
   img.src = imagePath;
   overlay.classList.remove("hidden");
-
 }
 
 function showGameOverScreen() {
   document.getElementById("gameOverOverlay").classList.remove("hidden");
 }
 
-
-let startTime;
-let deaths = 0;
-let coinsCollectedFinal = 0;
-
-function initFinalOverlay() {
-  finalOverlay = document.getElementById("finalLevelOverlay");
-  confettiCanvas = document.getElementById("confettiCanvas");
-  confettiCtx = confettiCanvas.getContext("2d");
-  confettiCanvas.width = 720;
-  confettiCanvas.height = 480;
+function startConfetti() {
+  initializeConfetti();
+  confettiAnimationId = requestAnimationFrame(drawConfetti);
 }
 
-function startConfetti() {
-  confettiPieces = [];
+function initializeConfetti() {
   const colors = ["#ff0a54", "#ff477e", "#ff85a1", "#fbb1b1", "#f9bec7"];
-
+  confettiPieces = [];
   for (let i = 0; i < 100; i++) {
-    confettiPieces.push({
-      x: Math.random() * confettiCanvas.width,
-      y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-      r: Math.random() * 6 + 4,
-      d: Math.random() * 20 + 10,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      tilt: Math.floor(Math.random() * 10) - 10,
-      tiltAngle: 0,
-      tiltAngleIncrement: Math.random() * 0.07 + 0.05,
-      speedY: Math.random() + 1,
-      speedX: (Math.random() - 0.5) * 2,
-    });
+    confettiPieces.push(createConfettiPiece(colors));
   }
+}
 
-  confettiAnimationId = requestAnimationFrame(drawConfetti);
+function createConfettiPiece(colors) {
+  return {
+    x: Math.random() * confettiCanvas.width,
+    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * 20 + 10,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    tilt: Math.floor(Math.random() * 10) - 10,
+    tiltAngle: 0,
+    tiltAngleIncrement: Math.random() * 0.07 + 0.05,
+    speedY: Math.random() + 1,
+    speedX: (Math.random() - 0.5) * 2,
+  };
 }
 
 function drawConfetti() {
   confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-
-  confettiPieces.forEach((p) => {
-    p.tiltAngle += p.tiltAngleIncrement;
-    p.y += p.speedY;
-    p.x += p.speedX;
-    p.tilt = Math.sin(p.tiltAngle) * 15;
-
-    confettiCtx.beginPath();
-    confettiCtx.lineWidth = p.r / 2;
-    confettiCtx.strokeStyle = p.color;
-    confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
-    confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
-    confettiCtx.stroke();
-
-    if (p.y > confettiCanvas.height) {
-      p.x = Math.random() * confettiCanvas.width;
-      p.y = -20;
-    }
-  });
-
+  confettiPieces.forEach((p) => updateAndDrawConfetti(p));
   confettiAnimationId = requestAnimationFrame(drawConfetti);
+}
+
+function updateAndDrawConfetti(p) {
+  p.tiltAngle += p.tiltAngleIncrement;
+  p.y += p.speedY;
+  p.x += p.speedX;
+  p.tilt = Math.sin(p.tiltAngle) * 15;
+
+  confettiCtx.beginPath();
+  confettiCtx.lineWidth = p.r / 2;
+  confettiCtx.strokeStyle = p.color;
+  confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+  confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+  confettiCtx.stroke();
+
+  if (p.y > confettiCanvas.height) {
+    p.x = Math.random() * confettiCanvas.width;
+    p.y = -20;
+  }
 }
 
 function stopConfetti() {
@@ -335,8 +334,76 @@ function formatTime(ms) {
 
 function showFinalLevelOverlay() {
   finalOverlay.classList.remove("hidden");
-  document.getElementById("canvas").style.display = "none";
   startConfetti();
+  const finalContent = finalOverlay.querySelector(".finalLevelContent");
+  finalContent.classList.add("hidden");
+  setTimeout(() => {
+    stopConfetti();
+    finalContent.classList.remove("hidden");
+  }, 5000);
 }
 
 
+
+function setupMobileControls() {
+  const btnLeft = document.getElementById("btn-left");
+  const btnRight = document.getElementById("btn-right");
+  const btnJump = document.getElementById("btn-jump");
+  const btnThrow = document.getElementById("btn-throw");
+  const btnPause = document.getElementById("btn-pause");
+  const btnMute = document.getElementById("btn-mute");
+
+  function pressKey(key) {
+    keyboard[key] = true;
+  }
+  function releaseKey(key) {
+    keyboard[key] = false;
+  }
+
+  btnLeft.addEventListener("touchstart", () => pressKey("LEFT"));
+  btnLeft.addEventListener("touchend", () => releaseKey("LEFT"));
+  btnLeft.addEventListener("mousedown", () => pressKey("LEFT"));
+  btnLeft.addEventListener("mouseup", () => releaseKey("LEFT"));
+  btnLeft.addEventListener("mouseleave", () => releaseKey("LEFT"));
+
+  btnRight.addEventListener("touchstart", () => pressKey("RIGHT"));
+  btnRight.addEventListener("touchend", () => releaseKey("RIGHT"));
+  btnRight.addEventListener("mousedown", () => pressKey("RIGHT"));
+  btnRight.addEventListener("mouseup", () => releaseKey("RIGHT"));
+  btnRight.addEventListener("mouseleave", () => releaseKey("RIGHT"));
+
+  btnJump.addEventListener("touchstart", () => pressKey("UP"));
+  btnJump.addEventListener("touchend", () => releaseKey("UP"));
+  btnJump.addEventListener("mousedown", () => pressKey("UP"));
+  btnJump.addEventListener("mouseup", () => releaseKey("UP"));
+  btnJump.addEventListener("mouseleave", () => releaseKey("UP"));
+
+  btnThrow.addEventListener("touchstart", () => pressKey("D"));
+  btnThrow.addEventListener("touchend", () => releaseKey("D"));
+  btnThrow.addEventListener("mousedown", () => pressKey("D"));
+  btnThrow.addEventListener("mouseup", () => releaseKey("D"));
+  btnThrow.addEventListener("mouseleave", () => releaseKey("D"));
+
+
+  btnPause.addEventListener("click", () => {
+    if (keyboard.P) {
+      keyboard.P = false;
+      keyboard.C = true;
+    } else {
+      keyboard.P = true;
+      keyboard.C = false;
+    }
+  });
+
+  btnMute.addEventListener("click", () => {
+    if (isMuted) {
+      isMuted = false;
+      if (world) world.soundManager.unmuteAllSounds();
+      btnMute.textContent = "🔈"; 
+    } else {
+      isMuted = true;
+      if (world) world.soundManager.muteAllSounds();
+      btnMute.textContent = "🔇"; 
+    }
+  });
+}

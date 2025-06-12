@@ -108,20 +108,41 @@
   <h1>El Pollo Loco</h1>
 
   <!-- Canvas -->
-  <div class="canvas-wrapper">
-    <canvas id="canvas" width="720" height="480"></canvas>
-    <img class="speaker" id="muteIcon" src="img/mute.png" />
-  </div>
+<div class="canvas-wrapper">
+  <canvas id="canvas" width="720" height="480"></canvas>
 
-  <!-- Final Level Overlay -->
+<div class="mobile-controls">
+  <div class="left-controls">
+    <button id="btn-left" class="control-btn">←</button>
+    <button id="btn-right" class="control-btn">→</button>
+  </div>
+  <div class="right-controls">
+    <button id="btn-jump" class="control-btn">↑</button>
+    <button id="btn-throw" class="control-btn">⚡</button>
+  </div>
+  <div class="top-right-controls">
+    <button id="btn-pause" class="control-btn">⏸</button>
+    <button id="btn-mute" class="control-btn">🔈</button>
+  </div>
+</div>
+
+
+
   <div id="finalLevelOverlay" class="overlay hidden">
     <canvas id="confettiCanvas"></canvas>
-    <h2 id="finalMessage">Congratulations!<br />You finished the game!</h2>
-    <div class="finalButtons">
-      <button class="btn btn-green" id="playAgainBtnFinal">Play Again from Level 1</button>
-      <button class="btn btn-yellow" id="backToMenuBtnFinal">Back to Level Menu</button>
+    <div class="finalLevelContent hidden">
+      <h2 id="finalMessage">Congratulations!<br />You finished the game!</h2>
+      <div class="finalButtons">
+        <button class="btn btn-green" id="playAgainBtnFinal">Play Again from Level 1</button>
+        <button class="btn btn-yellow" id="backToMenuBtnFinal">Back to Level Menu</button>
+      </div>
     </div>
   </div>
+
+  <img class="speaker" id="muteIcon" src="img/mute.png" />
+</div>
+
+
 
   <!-- End Screen -->
   <div id="endScreenOverlay" class="overlay hidden">

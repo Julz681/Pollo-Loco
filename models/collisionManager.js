@@ -78,14 +78,22 @@ class CollisionManager {
     }
   }
 
-  checkGameOverOrWin() {
-    if (this.world.character.isDead() && !this.world.showingEndScreen) {
+checkGameOverOrWin() {
+  if (this.world.character.isDead() && !this.world.showingEndScreen) {
+    this.world.showingEndScreen = true;
+    setTimeout(() => {
       this.world.handleGameOver();
-      return;
-    }
-    const endboss = this.world.level.enemies.find(e => e instanceof Endboss);
-    if (endboss && endboss.isDead && !this.world.showingEndScreen) {
-      this.world.handleGameWin();
-    }
+    }, 1500);
   }
+
+  const endboss = this.world.level.enemies.find(e => e instanceof Endboss);
+  if (endboss && endboss.isDead && !this.world.showingEndScreen) {
+    this.world.showingEndScreen = true;
+    setTimeout(() => {
+      this.world.handleGameWin();
+    }, 1500);
+  }
+}
+
+
 }

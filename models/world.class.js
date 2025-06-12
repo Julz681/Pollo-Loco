@@ -32,7 +32,6 @@ class World {
     this.collisionManager = new CollisionManager(this);
 
     this._setupSounds();
-
     this.draw();
     this.setWorld();
     this.run();
@@ -46,25 +45,34 @@ class World {
       this.soundManager.muteAllSounds();
     } else {
       this.soundManager.unmuteAllSounds();
+      this.isMuted = false;
+      this.updateMuteIcon();
       this.sounds.background.play();
     }
   }
 
   setWorld() {
     this.character.world = this;
-    this.level.enemies.forEach((enemy) => (enemy.world = this));
+    this.level.enemies.forEach(enemy => (enemy.world = this));
     this.pauseImage = new Image();
     this.pauseImage.src = "img/You won, you lost/Game_paused.png";
   }
 
-  run() {
-    setInterval(() => {
-      this.handlePauseToggle();
-      if (this.isPaused || this.isGameOver) return;
-      this.checkCollisions();
-      this.checkThrowObjects();
-    }, 200);
-  }
+run() {
+  setInterval(() => {
+    this.handlePauseToggle();
+    if (this.isPaused || this.isGameOver) return;
+
+    // Springen auslösen, wenn UP gedrückt ist
+    if (this.keyboard.UP) {
+      this.character.jump(); // vorausgesetzt Character hat jump()
+    }
+
+    this.checkCollisions();
+    this.checkThrowObjects();
+  }, 100); // besser 100ms statt 200ms für mehr Reaktivität
+}
+
 
   handlePauseToggle() {
     if (this.keyboard.P) this.isPaused = true;
@@ -128,9 +136,7 @@ class World {
 
   handleGameOver() {
     this.showingEndScreen = true;
-    setTimeout(() => {
-      this._doGameOver();
-    }, 1000);
+    setTimeout(() => this._doGameOver(), 1000);
   }
 
   _doGameOver() {
@@ -140,14 +146,11 @@ class World {
     this.soundManager.playDieSound();
   }
 
-  handleGameWin() {
-    this.showingEndScreen = true;
-    this.soundManager.playEndbossDieSound();
-    this._saveBestCoins();
-    setTimeout(() => {
-      this._doGameWin();
-    }, 3000);
-  }
+handleGameWin() {
+  this.soundManager.playEndbossDieSound();
+  this._saveBestCoins();
+  this._doGameWin();
+}
 
   _saveBestCoins() {
     const storageKey = `coinsLevel${currentLevel}`;
@@ -157,26 +160,30 @@ class World {
     }
   }
 
-  _doGameWin() {
-    this.isGameOver = true;
-    this.soundManager.pauseBackgroundSound();
-    if (currentLevel === 8) this.showFinalLevelOverlayWithApplause();
-    else this.showWinScreenWithApplause();
+_doGameWin() {
+  this.isGameOver = true;
+  this.soundManager.pauseBackgroundSound();
+  if (currentLevel === 8) {
+    this.handleFinalLevelWin();
+  } else {
+    this.showWinScreenWithApplause();
   }
+}
+
 
   showFinalLevelOverlayWithApplause() {
     showFinalLevelOverlay();
+    this._playApplause();
     setTimeout(() => {
-      this._playApplause();
-    }, 200);
+      stopConfetti();
+      showEndScreenWithButtons("img/You won, you lost/You won A.png");
+    }, 5000);
   }
 
   showWinScreenWithApplause() {
     showEndScreenWithButtons("img/You won, you lost/You won A.png");
     this._updateBestCoinsDisplay();
-    setTimeout(() => {
-      this._playApplause();
-    }, 200);
+    setTimeout(() => this._playApplause(), 200);
   }
 
   _playApplause() {
@@ -197,19 +204,15 @@ class World {
   draw() {
     if (this.isPaused) return this.drawPausedScreen();
     if (this.isGameOver) return this.drawGameOverScreen();
-
     this.resumeBackgroundSound();
     this.clearCanvas();
-
     this.ctx.translate(this.camera_x, 0);
     this.drawBackgroundObjects();
     this.drawCharacterAndEnemies();
     this.ctx.translate(-this.camera_x, 0);
-
     this.drawHUD();
     this.drawEndbossBarIfVisible();
     this.drawEndScreenIfShowing();
-
     requestAnimationFrame(() => this.draw());
   }
 
@@ -262,7 +265,7 @@ class World {
   }
 
   _drawObjects(objects) {
-    objects.forEach((obj) => this.addToMap(obj));
+    objects.forEach(obj => this.addToMap(obj));
   }
 
   drawCharacterAndEnemies() {
@@ -310,7 +313,7 @@ class World {
   }
 
   endbossInView() {
-    const boss = this.level.enemies.find((e) => e instanceof Endboss);
+    const boss = this.level.enemies.find(e => e instanceof Endboss);
     return boss && this.character.x + 400 >= boss.x && !boss.isDead;
   }
 
@@ -333,4 +336,15 @@ class World {
     if (!muteIcon) return;
     muteIcon.style.display = this.isMuted ? "block" : "none";
   }
+
+handleFinalLevelWin() {
+  this.showingEndScreen = true;  
+  this.isGameOver = true;
+  showFinalLevelOverlay(); 
+  this._playApplause();
+  setTimeout(() => {
+    stopConfetti();
+  }, 5000);
+}
+
 }
