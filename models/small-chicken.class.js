@@ -1,5 +1,5 @@
 class SmallChicken extends MovableObject {
-  y = 370;        // evtl. andere Höhe, damit auf Boden passt
+  y = 370;        
   height = 50;
   width = 40;
 
@@ -21,7 +21,7 @@ class SmallChicken extends MovableObject {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_DEAD);
     this.x = 200 + Math.random() * 500;
-    this.speed = 0.5 + Math.random() * 0.5;  // evtl. etwas schneller als große Chicken
+    this.speed = 0.5 + Math.random() * 0.5;  
     this.animate();
   }
 

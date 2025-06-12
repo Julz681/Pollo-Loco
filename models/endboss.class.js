@@ -47,7 +47,7 @@ class Endboss extends MovableObject {
   groundY = 48;
   flyY = -60;
 
-  constructor() {
+    constructor() {
     super();
     this.loadImage(this.IMAGES_WALKING[0]);
     this.loadImages(this.IMAGES_WALKING);
@@ -58,54 +58,69 @@ class Endboss extends MovableObject {
     this.x = 700;
     this.animate();
   }
+
   animate() {
     this.animationInterval = setInterval(() => {
       if (this.world?.isPaused) return;
-
       if (this.isDead) {
-        this.playAnimation(this.IMAGES_DEAD);
+        this.animateDead();
         return;
       }
-
       if (this.isHurt) {
-        this.playAnimation(this.IMAGES_HURT);
+        this.animateHurt();
         return;
       }
-
       if (this.isFlying) {
-        this.playAnimation(this.IMAGES_FLY);
-        this.y = this.flyY + 10 * Math.sin(Date.now() / 500);
-        if (!this.flyTimeout) {
-          this.flyTimeout = setTimeout(() => {
-            this.isFlying = false;
-            this.flyTimeout = null;
-            this.y = this.groundY;
-          }, this.flyDuration);
-        }
-        this.moveRight(this.walkingSpeed);
+        this.animateFlying();
         return;
       }
-
-      if (!this.isFlying && Math.random() < 0.005) {
-        this.isFlying = true;
-        return;
-      }
-
-      const character = this.world.character;
-      const distance = character.x - this.x;
-      const attackDistance = 300;
-      if (distance < -attackDistance) {
-        this.otherDirection = false;
-        this.moveLeft(this.walkingSpeed);
-        this.playAnimation(this.IMAGES_WALKING);
-      } else if (distance > attackDistance) {
-        this.otherDirection = true;
-        this.moveRight(this.walkingSpeed);
-        this.playAnimation(this.IMAGES_WALKING);
-      } else {
-        this.playAnimation(this.IMAGES_ATTACK);
-      }
+      this.tryStartFlying();
+      this.chaseOrAttack();
     }, 200);
+  }
+
+  animateDead() {
+    this.playAnimation(this.IMAGES_DEAD);
+  }
+
+  animateHurt() {
+    this.playAnimation(this.IMAGES_HURT);
+  }
+
+  animateFlying() {
+    this.playAnimation(this.IMAGES_FLY);
+    this.y = this.flyY + 10 * Math.sin(Date.now() / 500);
+    if (!this.flyTimeout) {
+      this.flyTimeout = setTimeout(() => {
+        this.isFlying = false;
+        this.flyTimeout = null;
+        this.y = this.groundY;
+      }, this.flyDuration);
+    }
+    this.moveRight(this.walkingSpeed);
+  }
+
+  tryStartFlying() {
+    if (!this.isFlying && Math.random() < 0.005) {
+      this.isFlying = true;
+    }
+  }
+
+  chaseOrAttack() {
+    const character = this.world.character;
+    const distance = character.x - this.x;
+    const attackDistance = 300;
+    if (distance < -attackDistance) {
+      this.otherDirection = false;
+      this.moveLeft(this.walkingSpeed);
+      this.playAnimation(this.IMAGES_WALKING);
+    } else if (distance > attackDistance) {
+      this.otherDirection = true;
+      this.moveRight(this.walkingSpeed);
+      this.playAnimation(this.IMAGES_WALKING);
+    } else {
+      this.playAnimation(this.IMAGES_ATTACK);
+    }
   }
 
   moveLeft(speed = this.walkingSpeed) {
@@ -118,7 +133,6 @@ class Endboss extends MovableObject {
 
   hit() {
     if (this.isDead) return;
-
     this.hits++;
     const energyLeft = Math.max(0, 100 - this.hits * 20);
     if (this.world && this.world.endbossBar) {
@@ -138,11 +152,9 @@ class Endboss extends MovableObject {
     this.isDead = true;
     this.isHurt = false;
     clearInterval(this.animationInterval);
-
     this.animationInterval = setInterval(() => {
       this.playAnimation(this.IMAGES_DEAD);
     }, 200);
-
     setTimeout(() => {
       const index = this.world.level.enemies.indexOf(this);
       if (index > -1) {

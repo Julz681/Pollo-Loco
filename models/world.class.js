@@ -25,12 +25,9 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
     this.level = level;
-
     this.soundManager = new SoundManager(this);
     this.soundManager.initSounds();
-
     this.collisionManager = new CollisionManager(this);
-
     this._setupSounds();
     this.draw();
     this.setWorld();
@@ -53,26 +50,22 @@ class World {
 
   setWorld() {
     this.character.world = this;
-    this.level.enemies.forEach(enemy => (enemy.world = this));
+    this.level.enemies.forEach((enemy) => (enemy.world = this));
     this.pauseImage = new Image();
     this.pauseImage.src = "img/You won, you lost/Game_paused.png";
   }
 
-run() {
-  setInterval(() => {
-    this.handlePauseToggle();
-    if (this.isPaused || this.isGameOver) return;
-
-    // Springen auslösen, wenn UP gedrückt ist
-    if (this.keyboard.UP) {
-      this.character.jump(); // vorausgesetzt Character hat jump()
-    }
-
-    this.checkCollisions();
-    this.checkThrowObjects();
-  }, 100); // besser 100ms statt 200ms für mehr Reaktivität
-}
-
+  run() {
+    setInterval(() => {
+      this.handlePauseToggle();
+      if (this.isPaused || this.isGameOver) return;
+      if (this.keyboard.UP) {
+        this.character.jump();
+      }
+      this.checkCollisions();
+      this.checkThrowObjects();
+    }, 100);
+  }
 
   handlePauseToggle() {
     if (this.keyboard.P) this.isPaused = true;
@@ -146,11 +139,11 @@ run() {
     this.soundManager.playDieSound();
   }
 
-handleGameWin() {
-  this.soundManager.playEndbossDieSound();
-  this._saveBestCoins();
-  this._doGameWin();
-}
+  handleGameWin() {
+    this.soundManager.playEndbossDieSound();
+    this._saveBestCoins();
+    this._doGameWin();
+  }
 
   _saveBestCoins() {
     const storageKey = `coinsLevel${currentLevel}`;
@@ -160,16 +153,15 @@ handleGameWin() {
     }
   }
 
-_doGameWin() {
-  this.isGameOver = true;
-  this.soundManager.pauseBackgroundSound();
-  if (currentLevel === 8) {
-    this.handleFinalLevelWin();
-  } else {
-    this.showWinScreenWithApplause();
+  _doGameWin() {
+    this.isGameOver = true;
+    this.soundManager.pauseBackgroundSound();
+    if (currentLevel === 8) {
+      this.handleFinalLevelWin();
+    } else {
+      this.showWinScreenWithApplause();
+    }
   }
-}
-
 
   showFinalLevelOverlayWithApplause() {
     showFinalLevelOverlay();
@@ -265,7 +257,7 @@ _doGameWin() {
   }
 
   _drawObjects(objects) {
-    objects.forEach(obj => this.addToMap(obj));
+    objects.forEach((obj) => this.addToMap(obj));
   }
 
   drawCharacterAndEnemies() {
@@ -313,7 +305,7 @@ _doGameWin() {
   }
 
   endbossInView() {
-    const boss = this.level.enemies.find(e => e instanceof Endboss);
+    const boss = this.level.enemies.find((e) => e instanceof Endboss);
     return boss && this.character.x + 400 >= boss.x && !boss.isDead;
   }
 
@@ -337,14 +329,28 @@ _doGameWin() {
     muteIcon.style.display = this.isMuted ? "block" : "none";
   }
 
-handleFinalLevelWin() {
-  this.showingEndScreen = true;  
-  this.isGameOver = true;
-  showFinalLevelOverlay(); 
-  this._playApplause();
-  setTimeout(() => {
-    stopConfetti();
-  }, 5000);
+  handleFinalLevelWin() {
+    this.showingEndScreen = true;
+    this.isGameOver = true;
+    showFinalLevelOverlay();
+    this._playApplause();
+    setTimeout(() => {
+      stopConfetti();
+    }, 5000);
+  }
 }
 
+function checkOrientation() {
+  const overlay = document.getElementById("rotateScreenOverlay");
+  if (window.innerWidth < window.innerHeight) {
+    overlay.classList.remove("hidden");
+    if (window.world) window.world.isPaused = true;
+  } else {
+    overlay.classList.add("hidden");
+    if (window.world) window.world.isPaused = false;
+  }
 }
+
+window.addEventListener("load", checkOrientation);
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("orientationchange", checkOrientation);

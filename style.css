@@ -1,8 +1,8 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'zabras', Arial, Helvetica, sans-serif;
-  background: url('img/desert.avif') center/cover no-repeat;
+  font-family: "zabras", Arial, Helvetica, sans-serif;
+  background: url("img/desert.avif") center/cover no-repeat;
   font-size: clamp(24px, 4vw, 58px);
   display: flex;
   flex-direction: column;
@@ -13,7 +13,6 @@ body {
 h1 {
   margin: 0;
 }
-
 
 .canvas-wrapper {
   position: relative;
@@ -34,7 +33,6 @@ canvas {
   display: block;
   z-index: 1;
 }
-
 
 .overlay {
   position: fixed;
@@ -68,7 +66,6 @@ canvas {
   object-fit: contain;
   height: auto;
 }
-
 
 button,
 .btn,
@@ -107,7 +104,6 @@ button,
   background: #45a049;
 }
 
-
 .level-buttons > div,
 .endScreenButtons,
 .gameOverButtons,
@@ -131,7 +127,6 @@ button,
   color: #ffc107;
   font-size: 1.2rem;
 }
-
 
 .speaker {
   position: absolute;
@@ -189,11 +184,9 @@ button,
   user-select: none;
 }
 
-
 .hidden {
   display: none !important;
 }
-
 
 @media screen and (max-width: 480px) {
   .info-buttons,
@@ -241,7 +234,6 @@ button,
   }
 }
 
-
 #finalLevelOverlay {
   position: fixed;
   top: 0;
@@ -249,11 +241,11 @@ button,
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.85);
-  z-index: 1050;  
+  z-index: 1050;
   display: flex;
   flex-direction: column;
-  justify-content: center;  
-  align-items: center;     
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
   padding: 0;
 }
@@ -264,18 +256,18 @@ button,
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1040; 
+  z-index: 1040;
 }
 
 .finalLevelContent {
   position: relative;
-  z-index: 1051; 
+  z-index: 1051;
   color: white;
   text-align: center;
   max-width: 90vw;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
   text-shadow: 0 0 8px black;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 1rem 2rem;
   border-radius: 12px;
   margin-top: 20px;
@@ -296,14 +288,14 @@ button,
 .mobile-controls {
   position: fixed;
   width: 100%;
-  pointer-events: none; /* Damit Buttons selbst nur reagieren, nicht der gesamte Container */
+  pointer-events: none;
   z-index: 1000;
 }
 
 .left-controls,
 .right-controls,
 .top-right-controls {
-  pointer-events: auto; /* Damit Buttons klickbar bleiben */
+  pointer-events: auto;
   display: flex;
   gap: 10px;
 }
@@ -348,7 +340,6 @@ button,
   background: rgba(255, 255, 255, 0.7);
 }
 
-
 .mobile-controls {
   display: none;
 }
@@ -357,4 +348,27 @@ button,
   .mobile-controls {
     display: block;
   }
+}
+
+.rotate-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #ffcc00;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  z-index: 2000;
+  text-align: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.hidden {
+  display: none !important;
 }

@@ -10,17 +10,18 @@ function createBackgroundObjects(levelSegments) {
 
   for (let i = 0; i < levelSegments; i++) {
     const x = i * segmentWidth - segmentWidth;
-
     backgroundObjects.push(new BackgroundObject(layerFiles[0], x));
-
-    for (let j = 1; j < layerFiles.length; j++) {
-      const layerNum = (i % 2) + 1;
-      const path = layerFiles[j] + layerNum + ".png";
-      backgroundObjects.push(new BackgroundObject(path, x));
-    }
+    addLayerObjects(backgroundObjects, layerFiles, i, x);
   }
-
   return backgroundObjects;
+}
+
+function addLayerObjects(backgroundObjects, layerFiles, segmentIndex, x) {
+  for (let j = 1; j < layerFiles.length; j++) {
+    const layerNum = (segmentIndex % 2) + 1;
+    const path = layerFiles[j] + layerNum + ".png";
+    backgroundObjects.push(new BackgroundObject(path, x));
+  }
 }
 
 class Level {
@@ -32,15 +33,7 @@ class Level {
   hearts;
   level_end_x;
 
-  constructor(
-    enemies,
-    clouds,
-    backgroundObjects,
-    bottles = [],
-    coins = [],
-    hearts = [],
-    level_end_x = 3680
-  ) {
+  constructor(enemies, clouds, backgroundObjects, bottles = [], coins = [], hearts = [], level_end_x = 3680) {
     this.enemies = enemies;
     this.clouds = clouds;
     this.backgroundObjects = backgroundObjects;
@@ -86,52 +79,46 @@ function createDiagonalCoins(rowCount = 10, coinsPerRow = 5, startX = 600, width
   const lowY = 160;
   const highY = 280;
 
-  const coinsStartX = startX;
-  const usableWidthCoins = width;
-
   const totalCoinsWidth = spacingX * (coinsPerRow - 1);
-  const rowSpacingX = (usableWidthCoins - totalCoinsWidth) / (rowCount - 1);
+  const rowSpacingX = (width - totalCoinsWidth) / (rowCount - 1);
 
   for (let row = 0; row < rowCount; row++) {
-    const baseX = coinsStartX + row * rowSpacingX;
+    const baseX = startX + row * rowSpacingX;
     const yStart = row % 2 === 0 ? lowY : highY;
     const yEnd = row % 2 === 0 ? highY : lowY;
     const yStep = (yEnd - yStart) / (coinsPerRow - 1);
-
-    for (let i = 0; i < coinsPerRow; i++) {
-      const x = baseX + i * spacingX;
-      const y = yStart + i * yStep;
-      coins.push(new Coin(x, y));
-    }
+    addCoinsRow(coins, baseX, spacingX, yStart, yStep, coinsPerRow);
   }
   return coins;
 }
 
+function addCoinsRow(coins, baseX, spacingX, yStart, yStep, coinsPerRow) {
+  for (let i = 0; i < coinsPerRow; i++) {
+    const x = baseX + i * spacingX;
+    const y = yStart + i * yStep;
+    coins.push(new Coin(x, y));
+  }
+}
 
 function createEnemies(level_start_x, usableWidth, bigChickenCount, smallChickenCount, bossX) {
   const enemies = [];
-
-  const bigChickenPositions = distributePositions(bigChickenCount, level_start_x, usableWidth);
-  for (let pos of bigChickenPositions) {
-    const chicken = new Chicken();
-    chicken.x = pos;
-    enemies.push(chicken);
-  }
-
-  const smallChickenPositions = distributePositions(smallChickenCount, level_start_x, usableWidth);
-  for (let pos of smallChickenPositions) {
-    const smallChicken = new SmallChicken();
-    smallChicken.x = pos;
-    enemies.push(smallChicken);
-  }
-
+  addChickens(enemies, bigChickenCount, level_start_x, usableWidth, Chicken);
+  addChickens(enemies, smallChickenCount, level_start_x, usableWidth, SmallChicken);
   if (typeof bossX === 'number') {
     const boss = new Endboss();
     boss.x = bossX;
     enemies.push(boss);
   }
-
   return enemies;
+}
+
+function addChickens(enemies, count, startX, usableWidth, ChickenType) {
+  const positions = distributePositions(count, startX, usableWidth);
+  for (let pos of positions) {
+    const chicken = new ChickenType();
+    chicken.x = pos;
+    enemies.push(chicken);
+  }
 }
 
 function createHearts(positions = [[2000,200], [6000,150], [8000,220]]) {

@@ -46,7 +46,6 @@ function showLevelMenu() {
   updateCoinsInLevelMenu();
 }
 
-// Globals for overlays and canvas
 let finalOverlay;
 let confettiCanvas;
 let confettiCtx;
@@ -56,7 +55,7 @@ let gameCanvas;
 window.addEventListener("load", () => {
   initOverlays();
   setupOverlayButtons();
-  setupMobileControls();  // <--- Mobile Controls Setup
+  setupMobileControls();
   showStartscreen();
 });
 
@@ -83,7 +82,9 @@ function setupGameOverButtons() {
       startGame(currentLevel);
     };
   }
-  const backToMenuBtnGameOver = document.getElementById("backToMenuBtnGameOver");
+  const backToMenuBtnGameOver = document.getElementById(
+    "backToMenuBtnGameOver"
+  );
   if (backToMenuBtnGameOver) {
     backToMenuBtnGameOver.onclick = () => {
       hideOverlay("gameOverOverlay");
@@ -108,7 +109,9 @@ function setupEndScreenButtons() {
       else showLevelMenu();
     };
   }
-  const backToMenuBtnEndScreen = document.getElementById("backToMenuBtnEndScreen");
+  const backToMenuBtnEndScreen = document.getElementById(
+    "backToMenuBtnEndScreen"
+  );
   if (backToMenuBtnEndScreen) {
     backToMenuBtnEndScreen.onclick = () => {
       hideOverlay("endScreenOverlay");
@@ -149,27 +152,33 @@ function startGame(levelNumber) {
   currentLevel = levelNumber;
   document.getElementById("levelmenu").classList.add("hidden");
   document.getElementById("canvas").style.display = "block";
-
   keyboard = new Keyboard();
   canvas = document.getElementById("canvas");
-
   let level = getLevel(levelNumber);
   world = new World(canvas, keyboard, level);
-
   if (levelNumber === 8) resetFinalLevelStats();
 }
 
 function getLevel(levelNumber) {
   switch (levelNumber) {
-    case 1: return createLevel1();
-    case 2: return createLevel2();
-    case 3: return createLevel3();
-    case 4: return createLevel4();
-    case 5: return createLevel5();
-    case 6: return createLevel6();
-    case 7: return createLevel7();
-    case 8: return createLevel8();
-    default: return createLevel1();
+    case 1:
+      return createLevel1();
+    case 2:
+      return createLevel2();
+    case 3:
+      return createLevel3();
+    case 4:
+      return createLevel4();
+    case 5:
+      return createLevel5();
+    case 6:
+      return createLevel6();
+    case 7:
+      return createLevel7();
+    case 8:
+      return createLevel8();
+    default:
+      return createLevel1();
   }
 }
 
@@ -194,9 +203,7 @@ function handleKeyDown(e) {
     if (world) world.soundManager.unmuteAllSounds();
     return;
   }
-
   setKeyPressed(e.keyCode, true);
-
   if (keyboard.SHIFT && keyboard.F) {
     e.preventDefault();
     enterFullscreen();
@@ -213,17 +220,39 @@ function handleKeyUp(e) {
 
 function setKeyPressed(keyCode, pressed) {
   switch (keyCode) {
-    case 39: keyboard.RIGHT = pressed; break;
-    case 37: keyboard.LEFT = pressed; break;
-    case 38: keyboard.UP = pressed; break;
-    case 40: keyboard.DOWN = pressed; break;
-    case 32: keyboard.SPACE = pressed; break;
-    case 68: keyboard.D = pressed; break;
-    case 80: keyboard.P = pressed; break;
-    case 67: keyboard.C = pressed; break;
-    case 16: keyboard.SHIFT = pressed; break;
-    case 83: keyboard.S = pressed; break;
-    case 70: keyboard.F = pressed; break;
+    case 39:
+      keyboard.RIGHT = pressed;
+      break;
+    case 37:
+      keyboard.LEFT = pressed;
+      break;
+    case 38:
+      keyboard.UP = pressed;
+      break;
+    case 40:
+      keyboard.DOWN = pressed;
+      break;
+    case 32:
+      keyboard.SPACE = pressed;
+      break;
+    case 68:
+      keyboard.D = pressed;
+      break;
+    case 80:
+      keyboard.P = pressed;
+      break;
+    case 67:
+      keyboard.C = pressed;
+      break;
+    case 16:
+      keyboard.SHIFT = pressed;
+      break;
+    case 83:
+      keyboard.S = pressed;
+      break;
+    case 70:
+      keyboard.F = pressed;
+      break;
   }
 }
 
@@ -329,7 +358,9 @@ function formatTime(ms) {
   let totalSeconds = Math.floor(ms / 1000);
   let minutes = Math.floor(totalSeconds / 60);
   let seconds = totalSeconds % 60;
-  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  return `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
 }
 
 function showFinalLevelOverlay() {
@@ -342,8 +373,6 @@ function showFinalLevelOverlay() {
     finalContent.classList.remove("hidden");
   }, 5000);
 }
-
-
 
 function setupMobileControls() {
   const btnLeft = document.getElementById("btn-left");
@@ -365,26 +394,21 @@ function setupMobileControls() {
   btnLeft.addEventListener("mousedown", () => pressKey("LEFT"));
   btnLeft.addEventListener("mouseup", () => releaseKey("LEFT"));
   btnLeft.addEventListener("mouseleave", () => releaseKey("LEFT"));
-
   btnRight.addEventListener("touchstart", () => pressKey("RIGHT"));
   btnRight.addEventListener("touchend", () => releaseKey("RIGHT"));
   btnRight.addEventListener("mousedown", () => pressKey("RIGHT"));
   btnRight.addEventListener("mouseup", () => releaseKey("RIGHT"));
   btnRight.addEventListener("mouseleave", () => releaseKey("RIGHT"));
-
   btnJump.addEventListener("touchstart", () => pressKey("UP"));
   btnJump.addEventListener("touchend", () => releaseKey("UP"));
   btnJump.addEventListener("mousedown", () => pressKey("UP"));
   btnJump.addEventListener("mouseup", () => releaseKey("UP"));
   btnJump.addEventListener("mouseleave", () => releaseKey("UP"));
-
   btnThrow.addEventListener("touchstart", () => pressKey("D"));
   btnThrow.addEventListener("touchend", () => releaseKey("D"));
   btnThrow.addEventListener("mousedown", () => pressKey("D"));
   btnThrow.addEventListener("mouseup", () => releaseKey("D"));
   btnThrow.addEventListener("mouseleave", () => releaseKey("D"));
-
-
   btnPause.addEventListener("click", () => {
     if (keyboard.P) {
       keyboard.P = false;
@@ -399,11 +423,11 @@ function setupMobileControls() {
     if (isMuted) {
       isMuted = false;
       if (world) world.soundManager.unmuteAllSounds();
-      btnMute.textContent = "🔈"; 
+      btnMute.textContent = "🔈";
     } else {
       isMuted = true;
       if (world) world.soundManager.muteAllSounds();
-      btnMute.textContent = "🔇"; 
+      btnMute.textContent = "🔇";
     }
   });
 }
