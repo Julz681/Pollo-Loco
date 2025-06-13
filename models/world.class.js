@@ -385,6 +385,8 @@ class World {
 /** Checks and handles device orientation, shows overlay if portrait */
 function checkOrientation() {
   const overlay = document.getElementById("rotateScreenOverlay");
+  if (!overlay) return; 
+
   if (window.innerWidth < window.innerHeight) {
     overlay.classList.remove("hidden");
     if (window.world) window.world.isPaused = true;
@@ -393,6 +395,8 @@ function checkOrientation() {
     if (window.world) window.world.isPaused = false;
   }
 }
+
+
 
 window.addEventListener("load", checkOrientation);
 window.addEventListener("resize", checkOrientation);

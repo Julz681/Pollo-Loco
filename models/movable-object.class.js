@@ -39,15 +39,30 @@ class MovableObject extends DrawableObject {
    * @param {MovableObject} mo - Other movable object.
    * @returns {boolean} True if colliding.
    */
-  isColliding(mo) {
-    const offset = 10;
-    return (
-      this.x + this.width - offset > mo.x &&
-      this.x + offset < mo.x + mo.width &&
-      this.y + this.height - offset > mo.y &&
-      this.y + offset < mo.y + mo.height
-    );
-  }
+isColliding(mo) {
+  return (
+    this.x + this.width > mo.x &&
+    this.x < mo.x + mo.width &&
+    this.y + this.height > mo.y &&
+    this.y < mo.y + mo.height
+  );
+}
+
+  /**
+   * Checks collision with coins.
+   * @param {MovableObject} mo - Other movable object.
+   * @returns {boolean} True if colliding.
+   */
+
+isCollidingCoin(mo) {
+  const offset = 5;
+  return (
+    this.x + this.width - offset > mo.x + offset &&
+    this.x + offset < mo.x + mo.width - offset &&
+    this.y + this.height - offset > mo.y + offset &&
+    this.y + offset < mo.y + mo.height - offset
+  );
+}
 
   /**
    * Reduces energy when hit and records the time of last hit.

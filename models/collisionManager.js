@@ -13,17 +13,17 @@ class CollisionManager {
    * Checks collisions between the character and enemies.
    * If collision occurs, character takes damage and updates UI.
    */
-  checkEnemyCollisions() {
-    this.world.level.enemies.forEach(enemy => {
-      if (enemy.isDead) return;
-      if (this.world.character.isColliding(enemy)) {
-        this.world.character.hit();
-        this.world.soundManager.playHurtSound();
-        this.world.deaths++;
-        this.world.statusBar.setPercentage(this.world.character.energy);
-      }
-    });
-  }
+checkEnemyCollisions() {
+  this.world.level.enemies.forEach(enemy => {
+    if (enemy.isDead) return;
+    if (this.world.character.isColliding(enemy)) {
+      this.world.character.hit();
+      this.world.deaths++;
+      this.world.statusBar.setPercentage(this.world.character.energy);
+    }
+  });
+}
+
 
   /**
    * Checks collisions between thrown bottles and enemies.
@@ -83,7 +83,7 @@ class CollisionManager {
   collectCoins() {
     for (let i = this.world.level.coins.length - 1; i >= 0; i--) {
       let coin = this.world.level.coins[i];
-      if (this.world.character.isColliding(coin)) {
+      if (this.world.character.isCollidingCoin(coin)) {
         this.world.level.coins.splice(i, 1);
         const current = this.world.coinBar.coins || 0;
         this.world.coinBar.setCoinCount(current + 1);
