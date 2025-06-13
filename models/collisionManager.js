@@ -13,25 +13,24 @@ class CollisionManager {
    * Checks collisions between the character and enemies.
    * If collision occurs, character takes damage and updates UI.
    */
-checkEnemyCollisions() {
-  this.world.level.enemies.forEach(enemy => {
-    if (enemy.isDead) return;
-    if (this.world.character.isColliding(enemy)) {
-      this.world.character.hit();
-      this.world.deaths++;
-      this.world.statusBar.setPercentage(this.world.character.energy);
-    }
-  });
-}
-
+  checkEnemyCollisions() {
+    this.world.level.enemies.forEach((enemy) => {
+      if (enemy.isDead) return;
+      if (this.world.character.isColliding(enemy)) {
+        this.world.character.hit();
+        this.world.deaths++;
+        this.world.statusBar.setPercentage(this.world.character.energy);
+      }
+    });
+  }
 
   /**
    * Checks collisions between thrown bottles and enemies.
    * Handles bottle hit effects and enemy damage or death.
    */
   checkBottleCollisions() {
-    this.world.level.enemies.forEach(enemy => {
-      this.world.throwableObject.forEach(bottle => {
+    this.world.level.enemies.forEach((enemy) => {
+      this.world.throwableObject.forEach((bottle) => {
         if (bottle.isColliding(enemy) && !enemy.isDead && !bottle.hasHit) {
           this.handleBottleHit(enemy, bottle);
         }
@@ -47,11 +46,9 @@ checkEnemyCollisions() {
   handleBottleHit(enemy, bottle) {
     bottle.hasHit = true;
     bottle.splash();
-
     if (enemy instanceof Chicken || enemy instanceof SmallChicken) {
       this.world.soundManager.playChickenDieSound();
     }
-
     if (enemy instanceof Endboss) {
       enemy.hit();
       this.world.soundManager.playEndbossHurtSound();
@@ -67,9 +64,15 @@ checkEnemyCollisions() {
   collectBottles() {
     for (let i = this.world.level.bottles.length - 1; i >= 0; i--) {
       let bottle = this.world.level.bottles[i];
-      if (this.world.character.isColliding(bottle) && this.world.statusBarBottle.percentage < 100) {
+      if (
+        this.world.character.isColliding(bottle) &&
+        this.world.statusBarBottle.percentage < 100
+      ) {
         this.world.level.bottles.splice(i, 1);
-        let newPercentage = Math.min(this.world.statusBarBottle.percentage + 20, 100);
+        let newPercentage = Math.min(
+          this.world.statusBarBottle.percentage + 20,
+          100
+        );
         this.world.statusBarBottle.setPercentage(newPercentage);
         this.world.soundManager.playBottleFindSound();
       }
@@ -120,7 +123,7 @@ checkEnemyCollisions() {
       }, 1500);
     }
 
-    const endboss = this.world.level.enemies.find(e => e instanceof Endboss);
+    const endboss = this.world.level.enemies.find((e) => e instanceof Endboss);
     if (endboss && endboss.isDead && !this.world.showingEndScreen) {
       this.world.showingEndScreen = true;
       setTimeout(() => {

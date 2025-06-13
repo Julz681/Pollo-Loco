@@ -26,7 +26,7 @@ class SoundManager {
       endbossDie: new Audio("audio/endboss_die.mp3"),
       applause: new Audio("audio/applause.mp3"),
       jump_sound: new Audio("audio/jump.mp3"),
-      snoring: new Audio("audio/snoring.mp3"),   
+      snoring: new Audio("audio/snoring.mp3"),
     };
     this.world.sounds.snoring.loop = true;
   }
@@ -47,7 +47,11 @@ class SoundManager {
     Object.values(this.world.sounds).forEach((sound) => {
       sound.muted = false;
     });
-    if (!this.world.isPaused && !this.world.isGameOver && this.world.sounds.background.paused) {
+    if (
+      !this.world.isPaused &&
+      !this.world.isGameOver &&
+      this.world.sounds.background.paused
+    ) {
       this.world.sounds.background.play();
     }
     this.world.isMuted = false;
@@ -55,7 +59,10 @@ class SoundManager {
     this.world.updateMuteIcon();
   }
 
-    playSnoring() {
+  /**
+   * Plays the snoring sound if not muted and not already playing.
+   */
+  playSnoring() {
     if (this.world.isMuted) return;
     const snore = this.world.sounds.snoring;
     if (snore.paused) {
@@ -64,6 +71,9 @@ class SoundManager {
     }
   }
 
+  /**
+   * Stops the snoring sound if it is currently playing.
+   */
   stopSnoring() {
     const snore = this.world.sounds.snoring;
     if (!snore.paused) {
@@ -71,6 +81,7 @@ class SoundManager {
       snore.currentTime = 0;
     }
   }
+
   /** Plays the sound effect for throwing a bottle. */
   playThrowSound() {
     this.world.sounds.throw.currentTime = 0;
@@ -86,7 +97,6 @@ class SoundManager {
       hurtSound.currentTime = 0;
       hurtSound.play();
     }
-    // Wenn bereits spielt, nichts tun
   }
 
   /** Plays the sound effect when a chicken dies. */

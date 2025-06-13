@@ -89,7 +89,7 @@ class Character extends MovableObject {
   canMove = true;
   isStunned = false;
 
-    /**
+  /**
    * Constructor: loads images, applies gravity and starts animation loops.
    */
   constructor() {
