@@ -8,23 +8,13 @@ window.createLevel7 = function () {
   const usableWidth = level_end_x - level_start_x - 500;
   const coinsStartX = 800;
   const coinsWidth = 12000;
-
-  // Enemies setup
   const enemies = createEnemies(level_start_x, usableWidth, 15, 12, 13500);
-
-  // Clouds and background objects
   const clouds = createClouds(25);
   const backgroundObjects = createBackgroundObjects(25);
-
-  // Bottles and coins distribution
   const bottles = createBottles(18, level_start_x, usableWidth);
   const coins = createDiagonalCoins(10, 5, coinsStartX, coinsWidth);
-
-  // Hearts at fixed positions
   const hearts = createHearts();
-
-  // Construct and return the Level instance
-  return new Level(
+  const level = new Level(
     enemies,
     clouds,
     backgroundObjects,
@@ -33,4 +23,7 @@ window.createLevel7 = function () {
     hearts,
     level_end_x
   );
+  level.number = 7;
+  return level;
 };
+

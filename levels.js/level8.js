@@ -19,7 +19,7 @@ window.createLevel8 = function () {
     [14000, 220],
   ]);
 
-  return new Level(
+  const level8 = new Level(
     enemies,
     clouds,
     backgroundObjects,
@@ -28,7 +28,11 @@ window.createLevel8 = function () {
     hearts,
     level_end_x
   );
+  level8.number = 8;
+
+  return level8;
 };
+
 
 /**
  * Creates wobbling coins arranged in rows for Level 8.

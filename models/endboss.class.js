@@ -170,11 +170,18 @@ class Endboss extends MovableObject {
   hit() {
     if (this.isDead) return;
     this.hits++;
-    const energyLeft = Math.max(0, 100 - this.hits * 20);
+    let maxHits = 5;
+    if (this.world && this.world.level && this.world.level.number) {
+      const levelNum = this.world.level.number;
+      if (levelNum === 6) maxHits = 6;
+      else if (levelNum === 7) maxHits = 7;
+      else if (levelNum === 8) maxHits = 8;
+    }
+    const energyLeft = Math.max(0, 100 - (this.hits * 100) / maxHits);
     if (this.world && this.world.endbossBar) {
       this.world.endbossBar.setPercentage(energyLeft);
     }
-    if (this.hits >= 5) {
+    if (this.hits >= maxHits) {
       this.die();
     } else {
       this.isHurt = true;

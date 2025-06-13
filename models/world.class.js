@@ -11,7 +11,6 @@ class World {
   statusBarBottle = new StatusBarBottle();
   coinBar = new CoinStatusBar();
   endScreenImage = null;
-  endScreenX = null;
   showingEndScreen = false;
   isPaused = false;
   pauseImage = null;
@@ -20,6 +19,7 @@ class World {
   coinsCollectedFinal = 0;
   startTime = 0;
   isMuted = false;
+  canThrow = true;
 
   /** Initializes the world with canvas, keyboard input and level data.
    * @param {HTMLCanvasElement} canvas - The canvas element to draw on.
@@ -43,10 +43,8 @@ class World {
   _setupSounds() {
     this.sounds.background.loop = true;
     this.sounds.background.volume = 0.5;
-    const storedMute = localStorage.getItem("isMuted");
-    if (storedMute === "true") {
-      this.soundManager.muteAllSounds();
-    } else {
+    if (localStorage.getItem("isMuted") === "true") this.soundManager.muteAllSounds();
+    else {
       this.soundManager.unmuteAllSounds();
       this.isMuted = false;
       this.updateMuteIcon();
@@ -91,10 +89,13 @@ class World {
 
   /** Logic to throw a bottle */
   throwBottle() {
+    if (!this.canThrow) return;
+    this.canThrow = false;
     this.createBottle();
     this.startThrowAnimation();
     this.updateBottleStatus();
     this.soundManager.playThrowSound();
+    setTimeout(() => (this.canThrow = true), 1500);
   }
 
   /** Create a new bottle object at character position */
@@ -277,13 +278,7 @@ class World {
 
   /** Draw background layers and objects */
   drawBackgroundObjects() {
-    this._drawObjects(this.level.backgroundObjects);
-    this._drawObjects(this.level.clouds);
-    this._drawObjects(this.level.bottles);
-    this._drawObjects(this.level.coins);
-    this._drawObjects(this.level.hearts);
-    this._drawObjects(this.level.enemies);
-    this._drawObjects(this.throwableObject);
+    [this.level.backgroundObjects, this.level.clouds, this.level.bottles, this.level.coins, this.level.hearts, this.level.enemies, this.throwableObject].forEach(group => this._drawObjects(group));
   }
 
   /** Helper to draw a list of objects */
