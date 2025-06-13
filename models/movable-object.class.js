@@ -39,12 +39,15 @@ class MovableObject extends DrawableObject {
    * @param {MovableObject} mo - Other movable object.
    * @returns {boolean} True if colliding.
    */
-  isColliding(mo) {
+    isColliding(mo) {
+    const centerX = mo.x + mo.width / 2;
+    const centerY = mo.y + mo.height / 2;
+
     return (
-      this.x + this.width > mo.x &&
-      this.x < mo.x + mo.width &&
-      this.y + this.height > mo.y &&
-      this.y < mo.y + mo.height
+      centerX > this.x &&
+      centerX < this.x + this.width &&
+      centerY > this.y &&
+      centerY < this.y + this.height
     );
   }
 
@@ -54,13 +57,12 @@ class MovableObject extends DrawableObject {
    * @returns {boolean} True if colliding.
    */
 
-  isCollidingCoin(mo) {
-    const offset = 5;
+  isCollidingEnemy(mo) {
     return (
-      this.x + this.width - offset > mo.x + offset &&
-      this.x + offset < mo.x + mo.width - offset &&
-      this.y + this.height - offset > mo.y + offset &&
-      this.y + offset < mo.y + mo.height - offset
+      this.x + this.width > mo.x &&
+      this.x < mo.x + mo.width &&
+      this.y + this.height > mo.y &&
+      this.y < mo.y + mo.height
     );
   }
 

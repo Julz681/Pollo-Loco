@@ -144,7 +144,7 @@ class World {
   /** Handle game over sequence */
   handleGameOver() {
     this.showingEndScreen = true;
-    setTimeout(() => this._doGameOver(), 1000);
+    setTimeout(() => this._doGameOver(), 100);
   }
 
   /** Finalize game over */

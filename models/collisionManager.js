@@ -31,7 +31,7 @@ class CollisionManager {
   checkBottleCollisions() {
     this.world.level.enemies.forEach((enemy) => {
       this.world.throwableObject.forEach((bottle) => {
-        if (bottle.isColliding(enemy) && !enemy.isDead && !bottle.hasHit) {
+        if (bottle.isCollidingEnemy(enemy) && !enemy.isDead && !bottle.hasHit) {
           this.handleBottleHit(enemy, bottle);
         }
       });
@@ -86,7 +86,7 @@ class CollisionManager {
   collectCoins() {
     for (let i = this.world.level.coins.length - 1; i >= 0; i--) {
       let coin = this.world.level.coins[i];
-      if (this.world.character.isCollidingCoin(coin)) {
+      if (this.world.character.isColliding(coin)) {
         this.world.level.coins.splice(i, 1);
         const current = this.world.coinBar.coins || 0;
         this.world.coinBar.setCoinCount(current + 1);
